@@ -1,3 +1,7 @@
+# ignore temp and download
+/download
+/temp
+
 # Logs
 logs
 *.log
