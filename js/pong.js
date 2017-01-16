@@ -20,43 +20,23 @@ var Player = Base.extend({
 
         var gate = this.gate;
         this.paddle.onMouseDrag = function(event) {
-            var offset = event.downPoint - event.point;
-            // paddle.bounds.center.y += offset.x;
-            // console.log("this", this);
-            // console.log("event.item", event.item);
-            // console.log("event.downPoint", event.downPoint);
-            // console.log("event", event);
-            // console.log("event.point", event.point);
-            // console.log("offset", offset);
-            // console.log("this.position", this.position);
-            // console.log("this.parent", this.parent);
-            // console.log("gate.bounds", gate.bounds);
-            // var new_position = new Point(0, this.position.y + event.delta.y);
-            var new_position_y = this.position.y + event.delta.y;
-            // console.log("new_position", new_position_y);
-            // console.log("gate.contains(new_position)", gate.contains(new_position));
-            // if (gate.contains(new_position)) {
-            // console.log("this.data", this.data);
-            // if (
-            //     this.data.move_limmits.top <
-            //     new_position_y >
-            //     this.data.move_limmits.bottom
-            // ) {
-            // console.log("gate.bounds.top < new_position_y < gate.bounds.bottom", gate.bounds.top < new_position_y < gate.bounds.bottom);
-            // console.log("(gate.bounds.top < new_position_y)", (gate.bounds.top < new_position_y));
-            // console.log("(new_position < gate.bounds.bottom)", (new_position_y < gate.bounds.bottom));
-            var min = gate.bounds.top + (this.bounds.height/2);
-            var max = gate.bounds.bottom - (this.bounds.height/2);
-            // console.log("min", min);
-            // console.log("max", max);
-            if (
-                // min < new_position_y < max
-                (min < new_position_y) &&
-                (new_position_y < max)
-            ) {
-                this.position.y = new_position_y;
+            // check that mouse is inside group
+            // this does not feel nice in the usage..
+            // TODO find some other 'boundingbox' that fits 'smooth handling'
+            if (this.parent.contains(event.point)) {
+                var new_position_y = this.position.y + event.delta.y;
+                var min = gate.bounds.top + (this.bounds.height/2);
+                var max = gate.bounds.bottom - (this.bounds.height/2);
+                // console.log("min", min);
+                // console.log("max", max);
+                // bound paddle to gate length
+                if (
+                    (min < new_position_y) &&
+                    (new_position_y < max)
+                ) {
+                    this.position.y = new_position_y;
+                }
             }
-
         };
 
 
@@ -95,6 +75,94 @@ var Player = Base.extend({
     }
 });
 
+var Ball = Base.extend({
+    initialize: function Ball(position, vector) {
+        Base.call(this);
+
+        this.position = position || view.center;
+        this.vector = vector || new Point({
+            // angle: Math.floor(Math.random()*360),
+            angle: 0,
+            length: 2
+        });
+        console.log("this.vector.angle", this.vector.angle);
+        console.log("this.vector.length", this.vector.length);
+
+        this.ball_graphics = new Path.Circle({
+        	center: this.position,
+        	radius: 30,
+        	fillColor: 'lime'
+        });
+
+        console.log("New Ball ready.");
+        return this;
+    },
+    check_and_bounce_at_obstacle: function(item){
+
+        if (this.ball_graphics.intersects(item)) {
+            console.log("ball intersects:");
+            console.log("this.vector.angle:", this.vector.angle);
+            // console.log("ball intersects:", item);
+            // TODO get segment we intersected with.
+            var intersections = this.ball_graphics.getIntersections(item);
+            // console.log("intersections:", intersections);
+            if (intersections.length > 0) {
+                // calculate bounce off angle
+                // we only use the first intersection.
+                // var isec = intersections[0];
+                for (var i = 0; i < intersections.length; i++) {
+                    var isec = intersections[i];
+                    console.log("i:", i);
+                    // console.log(
+                    //     "isec.tangent:\n",
+                    //     "  angle", isec.tangent.angle, "\n",
+                    //     "  length", isec.tangent.length, "\n"
+                    // );
+                    // console.log(
+                    //     "isec.normal:\n",
+                    //     "  angle", isec.normal.angle, "\n",
+                    //     "  length", isec.normal.length, "\n"
+                    // );
+                    console.log("isec.segment:", isec.segment);
+                    console.log("isec.segment.point.angle:", isec.segment.point.angle);
+                    console.log("isec.tangent.angle:", isec.tangent.angle);
+                    console.log("isec.normal.angle:", isec.normal.angle);
+                }
+                // var isec = intersections[0];
+                // isec.t
+                this.vector.angle += -180;
+            } else {
+                // fallback to simple bounce off
+                this.vector.angle += -180;
+            }
+        }
+
+        // bounce ball from all things it hits..
+        // console.log("this.ball_graphics", this.ball_graphics);
+        // console.log("project.activeLayer.children.length", project.activeLayer.children.length);
+        // for (var i = 0; i < project.activeLayer.children.length; i++) {
+        //     var item = project.activeLayer.children[i];
+        //     // only test other icons (not yourself!)
+        //     if (
+        //         (item._id !== this.ball_graphics._id) &&
+        //         (item._type)
+        //     ) {
+        //         // console.log("item", item);
+        //         if (this.ball_graphics.intersects(item)) {
+        //             console.log("ball intersects:", item);
+        //             this.vector.angle += -180;
+        //         }
+        //     }
+        // }
+    },
+    move: function(){
+        // console.log("this.ball.position", this.ball.position);
+        // console.log("this.vector", this.vector);
+        this.ball_graphics.position += this.vector;
+        // this.bounce_at_obstacle();
+    }
+});
+
 
 function setup() {
     console.log("initialize background...");
@@ -123,19 +191,34 @@ function setup() {
 
 setup();
 
-// generate some graphical elements:
-var ball = new Path.Circle({
-	center: view.center,
-	radius: 30,
-	fillColor: 'lime'
-});
-
 // real application
-var player1 = new Player(new Point(150,250), 0);
-var player2 = new Player();
 
+var game_area = new Path.Rectangle(view.bounds);
+game_area.strokeColor = null;
+game_area.fillColor = null;
+game_area.name = "game_area";
+
+var ball1 = new Ball();
+
+// var player1 = new Player(new Point(150,250), 0);
+// var player2 = new Player();
+
+// function onFrame() {
+// view.onClick = function(event) {
+view.onFrame = function(event) {
+    //console.log("click");
+    ball1.move();
+    ball1.check_and_bounce_at_obstacle(game_area);
+
+};
 
 
 // helper to reset view.
 view.onDoubleClick = function(event) {
 };
+
+// global tool
+// here to activate 'mouse' mode for sketch.paperjs.org
+function onMouseMove(event) {
+    // nothing to do.
+}
