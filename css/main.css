@@ -34,4 +34,6 @@ canvas[resize] {
 
 .info {
     position: absolute;
+    margin: 0;
+    padding: 1em;
 }
