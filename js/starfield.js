@@ -31,7 +31,8 @@ for (var i = 0; i < count; i++) {
 	var center = Point.random() * view.size;
 	var placedSymbol = symbol.place(center);
 	var scale_factor = (i+1) / count;
-	placedSymbol.orig_scale_factor = scale_factor;
+	// http://paperjs.org/reference/item/#data
+	placedSymbol.data.orig_scale_factor = scale_factor;
 	placedSymbol.scale(scale_factor);
 }
 
@@ -48,8 +49,8 @@ function update_scale(item, center_distance) {
     // console.log("center_distance_factor", center_distance_factor);
     // center_distance_factor += 1;
     // console.log("center_distance_factor", center_distance_factor);
-    // console.log("item.orig_scale_factor", item.orig_scale_factor);
-    var new_scale_factor = item.orig_scale_factor * center_distance_factor;
+    // console.log("item.data.orig_scale_factor", item.data.orig_scale_factor);
+    var new_scale_factor = item.data.orig_scale_factor * center_distance_factor;
     // console.log("new_scale_factor", new_scale_factor);
 
     // console.log("item.scaling", item.scaling);
