@@ -28,7 +28,7 @@
 // http://paperjs.org/tutorials/animation/creating-animations/#moving-multiple-items
 
 // The amount of circles we want to make:
-var count = 200;
+var count = 300;
 
 // Create a symbol, which we will use to place instances of later:
 var path = new Path.Circle({
@@ -103,10 +103,20 @@ function onFrame(event) {
         // move from center to outside
 		// larger circles move faster than smaller circles:
         // var move_offset = item.bounds.width / 5;
+
+        var vector = item.position - view.center;
+
         var move_offset = item.bounds.width / 5;
+
+
         // add 1 so that this cant be 0.
         move_offset += 1;
-        var vector = item.position - view.center;
+
+        var center_distance_factor = (1 * vector.length) / view.center.length;
+        center_distance_factor *= 13.9;
+        move_offset *= center_distance_factor;
+        move_offset += 1;
+
         vector.length += move_offset;
         var new_position = vector + view.center;
         item.position = new_position;
