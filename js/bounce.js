@@ -8,9 +8,12 @@ var Ball = Base.extend({
 
         this.position = position || view.center;
         this.vector = vector || new Point({
-            angle: Math.floor(Math.random()*360),
+            // angle: Math.floor(Math.random()*360),
             // angle: 70,
-            length: 10
+            angle: -16,
+            length: 29
+            // attention! the move-size must be smaller than the circle radius.
+            // otherwise the bounce check does not work..
         });
         // console.log("this.vector.angle", this.vector.angle);
         // console.log("this.vector.length", this.vector.length);
@@ -33,61 +36,112 @@ var Ball = Base.extend({
         	radius: 5,
         	strokeColor: 'cyan'
         });
+        this.hit_helper3 = Path.Circle({
+        	center: this.position,
+        	radius: 3,
+        	strokeColor: 'blue'
+        });
+
+        var min = Math.min(
+            this.ball_graphics.bounds.width,
+            this.ball_graphics.bounds.height
+        );
+        var max = Math.max(
+            this.ball_graphics.bounds.width,
+            this.ball_graphics.bounds.height
+        );
+        this.min_distance = (min/2) + 1;
+        this.bounce_distance = (max/2) + this.vector.length;
+        console.log("Math.min(this.ball_graphics.bounds.width, this.ball_graphics.bounds.height):", Math.min(this.ball_graphics.bounds.width, this.ball_graphics.bounds.height));
+        console.log("this.min_distance:", this.min_distance);
+        console.log("this.bounce_distance:", this.bounce_distance);
+        this.nearestpoint_last = new Point();
+        // this.flag_check_allowed = true;
 
         console.log("New Ball ready.");
         return this;
     },
     check_and_bounce_at_obstacle: function(item){
-        if (this.ball_graphics.intersects(item)) {
-            console.log("ball intersects:");
-            var nearestpoint = item.getNearestPoint(this.ball_graphics.position);
-            var nearest_vector = nearestpoint - this.ball_graphics.position;
+        // if (this.ball_graphics.intersects(item)) {
+        var nearestpoint = item.getNearestPoint(this.ball_graphics.position);
+        var nearest_vector = nearestpoint - this.ball_graphics.position;
+        // check if we are near item..
+        if (nearest_vector.length < this.bounce_distance) {
+            console.log("--- near ---");
+            // wait for intersection to clear before the next check.
+            // this helps to prevent 'locking' on the wronge side of a check bound..
+            // if (this.flag_check_allowed) {
+            // check if we really have left the last intersection..
+            var nearest_old_vector = this.nearestpoint_last - this.ball_graphics.position;
+            console.log("nearest_old_vector.length:", nearest_old_vector.length);
+            if (nearest_old_vector.length > this.min_distance) {
+                console.log("check:");
 
-            // helper / debug
-            // draw a line between this two points:
-            this.hit_helper.removeSegments();
-            this.hit_helper.addSegments([
-                this.ball_graphics.position,
-                nearestpoint
-            ]);
-            this.hit_helper2.position = nearestpoint;
+                this.nearestpoint_last = nearestpoint;
 
-            var vector_angle = round_precision(this.vector.angle, 2);
-            console.log("vector_angle:", vector_angle);
-            // var vector_angle_normalized = vector_angle-180;
-            // console.log("vector_angle_normalized:", vector_angle_normalized);
+                console.log("nearest_vector.length:", nearest_vector.length);
 
-            var nearest_vector_angle = round_precision(nearest_vector.angle, 2);
-            console.log("nearest_vector_angle:  ", nearest_vector_angle);
-            // console.log("nearest_vector_angle:", nearest_vector_angle);
+                // var np_ball = this.ball_graphics.getNearestPoint(nearestpoint);
+                // var help_vector = nearestpoint - np_ball;
+                // console.log("help_vector.length:", help_vector.length);
+                // console.log("help_vector.angle:", help_vector.angle);
+                // this.hit_helper3.position = np_ball;
 
-            // var angle_delta_in = nearest_vector_angle - vector_angle_normalized;
-            var angle_delta_in = nearest_vector_angle - vector_angle;
-            console.log("angle_delta_in:", angle_delta_in);
+                // helper / debug
+                // draw a line between this two points:
+                this.hit_helper.removeSegments();
+                this.hit_helper.addSegments([
+                    this.ball_graphics.position,
+                    nearestpoint
+                ]);
+                this.hit_helper2.position = nearestpoint;
 
-            var angle_delta_out = angle_delta_in * -1;
-            console.log("angle_delta_out:", angle_delta_out);
+                var vector_angle = round_precision(this.vector.angle, 2);
+                console.log("vector_angle:", vector_angle);
+                // var vector_angle_normalized = vector_angle-180;
+                // console.log("vector_angle_normalized:", vector_angle_normalized);
 
-            var angle_diff = nearest_vector_angle - angle_delta_out;
-            // var angle_diff = nearest_vector_angle - angle_delta_in;
-            console.log("angle_diff:", angle_diff);
+                var nearest_vector_angle = round_precision(nearest_vector.angle, 2);
+                console.log("nearest_vector_angle:  ", nearest_vector_angle);
 
-            // var angle_out = vector_angle + angle_diff;
-            var angle_out = angle_diff - 180;
-            if (angle_diff < 0) {
-                 angle_out = 180 + angle_diff;
+                // var angle_delta_in = nearest_vector_angle - vector_angle_normalized;
+                var angle_delta_in = nearest_vector_angle - vector_angle;
+                console.log("angle_delta_in:", angle_delta_in);
+
+                var angle_delta_out = angle_delta_in * -1;
+                console.log("angle_delta_out:", angle_delta_out);
+
+                var angle_diff = nearest_vector_angle - angle_delta_out;
+                // var angle_diff = nearest_vector_angle - angle_delta_in;
+                console.log("angle_diff:", angle_diff);
+
+                // var angle_out = vector_angle + angle_diff;
+                var angle_out = angle_diff - 180;
+                if (angle_diff < 0) {
+                     angle_out = 180 + angle_diff;
+                }
+                console.log("angle_out:", angle_out);
+                this.flag_check_allowed = false;
+
+                this.vector.angle = angle_out;
+                // this.vector.angle += -180;
+                // move_active = false;
             }
-            console.log("angle_out:", angle_out);
-
-            this.vector.angle = angle_out;
-            // this.vector.angle += -180;
-            // move_active = false;
+        } else {
+            // this.flag_check_allowed = true;
         }
+
     },
     move: function(){
         // console.log("this.ball.position", this.ball.position);
         // console.log("this.vector", this.vector);
         this.ball_graphics.position += this.vector;
+        // this.bounce_at_obstacle();
+    },
+    moveback: function(){
+        // console.log("this.ball.position", this.ball.position);
+        // console.log("this.vector", this.vector);
+        this.ball_graphics.position -= this.vector;
         // this.bounce_at_obstacle();
     }
 });
@@ -157,8 +211,20 @@ view.onFrame = function(event) {
 
 var move_active = true;
 view.onClick = function(event) {
-    console.log("toggle moving.");
-    move_active = !move_active;
+    if (event.modifiers.shift) {
+        console.log("toggle moving.");
+        move_active = !move_active;
+    } else {
+        if (event.modifiers.control) {
+            console.log("move back!.");
+            ball1.moveback();
+            ball1.check_and_bounce_at_obstacle(game_area);
+        } else {
+            console.log("move!");
+            ball1.move();
+            ball1.check_and_bounce_at_obstacle(game_area);
+        }
+    }
 };
 
 // helper to reset view.
