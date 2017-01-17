@@ -8,9 +8,9 @@ var Ball = Base.extend({
 
         this.position = position || view.center;
         this.vector = vector || new Point({
-            // angle: Math.floor(Math.random()*360),
-            angle: 0,
-            length: 2
+            angle: Math.floor(Math.random()*360),
+            // angle: 70,
+            length: 10
         });
         // console.log("this.vector.angle", this.vector.angle);
         // console.log("this.vector.length", this.vector.length);
@@ -38,46 +38,12 @@ var Ball = Base.extend({
         return this;
     },
     check_and_bounce_at_obstacle: function(item){
-
         if (this.ball_graphics.intersects(item)) {
             console.log("ball intersects:");
-            console.log("this.vector.angle:", this.vector.angle);
-            // console.log("ball intersects:", item);
-            // TODO get segment we intersected with.
-            // var intersections = this.ball_graphics.getIntersections(item);
-            // // console.log("intersections:", intersections);
-            // if (intersections.length > 0) {
-            //     // calculate bounce off angle
-            //     // we only use the first intersection.
-            //     // var isec = intersections[0];
-            //     for (var i = 0; i < intersections.length; i++) {
-            //         var isec = intersections[i];
-            //         console.log("i:", i);
-            //         // console.log(
-            //         //     "isec.tangent:\n",
-            //         //     "  angle", isec.tangent.angle, "\n",
-            //         //     "  length", isec.tangent.length, "\n"
-            //         // );
-            //         // console.log(
-            //         //     "isec.normal:\n",
-            //         //     "  angle", isec.normal.angle, "\n",
-            //         //     "  length", isec.normal.length, "\n"
-            //         // );
-            //         console.log("isec.segment:", isec.segment);
-            //         console.log("isec.segment.point.angle:", isec.segment.point.angle);
-            //         console.log("isec.tangent.angle:", isec.tangent.angle);
-            //         console.log("isec.normal.angle:", isec.normal.angle);
-            //     }
-            //     // var isec = intersections[0];
-            //     // isec.t
-            //     this.vector.angle += -180;
-            // } else {
-            //     // fallback to simple bounce off
-            //     this.vector.angle += -180;
-            // }
-            // var nearestpoint = this.ball_graphics.getNearestPoint(item);
             var nearestpoint = item.getNearestPoint(this.ball_graphics.position);
-            var vector_nearest = nearestpoint - this.ball_graphics.position;
+            var nearest_vector = nearestpoint - this.ball_graphics.position;
+
+            // helper / debug
             // draw a line between this two points:
             this.hit_helper.removeSegments();
             this.hit_helper.addSegments([
@@ -85,43 +51,38 @@ var Ball = Base.extend({
                 nearestpoint
             ]);
             this.hit_helper2.position = nearestpoint;
-            // console.log(
-            //     "isec.tangent:\n",
-            //     "  angle", isec.tangent.angle, "\n",
-            //     "  length", isec.tangent.length, "\n"
-            // );
-            // console.log(
-            //     "isec.normal:\n",
-            //     "  angle", isec.normal.angle, "\n",
-            //     "  length", isec.normal.length, "\n"
-            // );
-            console.log("nearestpoint:", nearestpoint);
-            console.log("vector_nearest.angle:", vector_nearest.angle);
-            console.log("vector_nearest.length:", vector_nearest.length);
-            // this.vector.angle
-            // console.log("isec.normal.angle:", isec.normal.angle);
-            // fallback to simple bounce off
-            this.vector.angle += -180;
+
+            var vector_angle = round_precision(this.vector.angle, 2);
+            console.log("vector_angle:", vector_angle);
+            // var vector_angle_normalized = vector_angle-180;
+            // console.log("vector_angle_normalized:", vector_angle_normalized);
+
+            var nearest_vector_angle = round_precision(nearest_vector.angle, 2);
+            console.log("nearest_vector_angle:  ", nearest_vector_angle);
+            // console.log("nearest_vector_angle:", nearest_vector_angle);
+
+            // var angle_delta_in = nearest_vector_angle - vector_angle_normalized;
+            var angle_delta_in = nearest_vector_angle - vector_angle;
+            console.log("angle_delta_in:", angle_delta_in);
+
+            var angle_delta_out = angle_delta_in * -1;
+            console.log("angle_delta_out:", angle_delta_out);
+
+            var angle_diff = nearest_vector_angle - angle_delta_out;
+            // var angle_diff = nearest_vector_angle - angle_delta_in;
+            console.log("angle_diff:", angle_diff);
+
+            // var angle_out = vector_angle + angle_diff;
+            var angle_out = angle_diff - 180;
+            if (angle_diff < 0) {
+                 angle_out = 180 + angle_diff;
+            }
+            console.log("angle_out:", angle_out);
+
+            this.vector.angle = angle_out;
+            // this.vector.angle += -180;
             // move_active = false;
         }
-
-        // bounce ball from all things it hits..
-        // console.log("this.ball_graphics", this.ball_graphics);
-        // console.log("project.activeLayer.children.length", project.activeLayer.children.length);
-        // for (var i = 0; i < project.activeLayer.children.length; i++) {
-        //     var item = project.activeLayer.children[i];
-        //     // only test other icons (not yourself!)
-        //     if (
-        //         (item._id !== this.ball_graphics._id) &&
-        //         (item._type)
-        //     ) {
-        //         // console.log("item", item);
-        //         if (this.ball_graphics.intersects(item)) {
-        //             console.log("ball intersects:", item);
-        //             this.vector.angle += -180;
-        //         }
-        //     }
-        // }
     },
     move: function(){
         // console.log("this.ball.position", this.ball.position);
@@ -175,7 +136,7 @@ var margin = small_length/20;
 // );
 var game_area = new Path.RegularPolygon(
 	view.center,
-	9,
+	8,
 	(small_length/2)-(margin*2)
 );
 game_area.strokeColor = 'white';
@@ -236,3 +197,11 @@ view.onMouseMove = function(event) {
     // Move the red circle to the nearest point:
     circle.position = nearestPoint;
 };
+
+
+function round_precision(number, precision) {
+    var factor = Math.pow(10, precision);
+    var tempNumber = number * factor;
+    var roundedTempNumber = Math.round(tempNumber);
+    return roundedTempNumber / factor;
+}
