@@ -175,27 +175,30 @@ function setup() {
 
 setup();
 
-// real application
+// application
+function make_game_area() {
+    var game_area = new Path.Rectangle(view.bounds);
+    var small_length = Math.min((view.bounds.height),(view.bounds.width));
+    // margin 5%
+    var margin = small_length/20;
+    // game_area = new Path.Rectangle(
+    //     margin,
+    //     margin,
+    //     (view.bounds.width-(margin*2)),
+    //     (view.bounds.height-(margin*2))
+    // );
+    game_area = new Path.RegularPolygon(
+    	view.center,
+    	8,
+    	(small_length/2)-(margin*2)
+    );
+    game_area.strokeColor = 'white';
+    game_area.fillColor = null;
+    game_area.name = "game_area";
+    return game_area;
+}
 
-
-// var game_area = new Path.Rectangle(view.bounds);
-var small_length = Math.min((view.bounds.height),(view.bounds.width));
-// margin 5%
-var margin = small_length/20;
-// var game_area = new Path.Rectangle(
-//     margin,
-//     margin,
-//     (view.bounds.width-(margin*2)),
-//     (view.bounds.height-(margin*2))
-// );
-var game_area = new Path.RegularPolygon(
-	view.center,
-	8,
-	(small_length/2)-(margin*2)
-);
-game_area.strokeColor = 'white';
-game_area.fillColor = null;
-game_area.name = "game_area";
+var game_area = make_game_area();
 
 var ball1 = new Ball();
 
