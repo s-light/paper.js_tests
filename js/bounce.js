@@ -147,7 +147,7 @@ var Ball = Base.extend({
 });
 
 
-function setup() {
+function setup_background() {
     console.log("initialize background...");
     // Set the background layer, adding a partially opaque rectangle.
     project.activeLayer.name = "bglayer";
@@ -173,14 +173,14 @@ function setup() {
     console.clear();
 }
 
-setup();
+setup_background();
 
 // application
 function make_game_area() {
     var game_area = new Path.Rectangle(view.bounds);
     var small_length = Math.min((view.bounds.height),(view.bounds.width));
-    // margin 5%
-    var margin = small_length/20;
+    // margin 2,5%
+    var margin = small_length/40;
     // game_area = new Path.Rectangle(
     //     margin,
     //     margin,
@@ -200,7 +200,26 @@ function make_game_area() {
 
 var game_area = make_game_area();
 
+var game_line = new Path([
+    (view.center / 1.6) + new Point(0, 30),
+    (view.center / 2)+(view.center / 3) + new Point(0, 30),
+]);
+game_line.strokeColor = 'white';
+
+var game_line2 = new Path([
+    view.center + new Point(-50, 40),
+    view.center + new Point(100, 40),
+]);
+game_line2.strokeColor = 'white';
+
+
 var ball1 = new Ball();
+
+function items_bouncing() {
+    ball1.check_and_bounce_at_obstacle(game_area);
+    ball1.check_and_bounce_at_obstacle(game_line);
+    ball1.check_and_bounce_at_obstacle(game_line2);
+}
 
 // function onFrame() {
 // view.onClick = function(event) {
@@ -208,7 +227,7 @@ view.onFrame = function(event) {
     //console.log("click");
 	if (move_active) {
 		ball1.move();
-		ball1.check_and_bounce_at_obstacle(game_area);
+        items_bouncing();
 	}
 };
 
@@ -221,18 +240,15 @@ view.onClick = function(event) {
         if (event.modifiers.control) {
             console.log("move back!.");
             ball1.moveback();
-            ball1.check_and_bounce_at_obstacle(game_area);
+            items_bouncing();
         } else {
             console.log("move!");
             ball1.move();
-            ball1.check_and_bounce_at_obstacle(game_area);
+            items_bouncing();
         }
     }
 };
 
-// helper to reset view.
-view.onDoubleClick = function(event) {
-};
 
 // global tool
 // here to activate 'mouse' mode for sketch.paperjs.org
