@@ -3,25 +3,28 @@
 <head>
     <title>svg tests</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
     <!-- Load the Interact.js library -->
     <script src="js/interact.js"></script>
+
     <!-- Load the Paper.js library -->
     <script type="text/javascript" src="js/paper-full.js"></script>
+
     <!-- Load external javascript and associate it with myCanvas -->
-    <script type="text/javascript" src="js/multitouch.js" canvas="myCanvas"></script>
+    <script type="text/javascript" src="js/multitouch.js"></script>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-<!--
-    <div id="test">Hallo Welt...</div>
-
-
-    <div id="drag-1" class="draggable">
-      <p> You can drag one element </p>
+    <div class="info">
+        <p>
+            test to combine <a href="http://interactjs.io/">interact.js</a> with paper.js - with multitouch support.
+        </p>
     </div>
-    <div id="drag-2" class="draggable">
-        <p> with each pointer </p>
-    </div> -->
 	<canvas id="myCanvas" resize="true"></canvas>
 </body>
 </html>

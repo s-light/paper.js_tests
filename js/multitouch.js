@@ -1,6 +1,4 @@
 // javascript!!!
-// load svg, moveable by mouseDrag. Hit test with Rectangle
-
 // goal: extend with interactive.js multitouch gestures.
 
 function listener (event) {
@@ -10,232 +8,113 @@ function listener (event) {
 //
 window.onload = function() {
 
-
     // ******************************************
     // Paper.js
 
-    // attention! this is polluting the global scope.
-    // paper.install(window);
-    // now we explicitly use the global "paper." name.
-
     paper.setup('myCanvas');
-    // import svg
-    // based on example:
-    // https://groups.google.com/d/msg/paperjs/dWG2FBlrr7Y/iR8XPl3hEAAJ
-    // related: use FileReader
-    // https://groups.google.com/d/msg/paperjs/no6gegoLFmo/HwKUbyg-UpIJ
-    var svg_import = new paper.Group();
-    paper.project.importSVG(
-        "svg/Colibri__single_lineart.svg",
-        {
-            expandShapes: true,
-            onLoad: function (item) {
-                // Do something with item
-                // console.log(item);
-                console.log("svg loaded.");
-                item.name = "The Imported SVG things..";
-                svg_import.addChild(item);
-                svg_import.fillColor = new paper.Color(0.4, 0.7, 1, 0.4);
-                svg_import.strokeColor = new paper.Color(0.4, 0.7, 1, 0.8);
-                svg_import.strokeWidth = 2;
-                svg_import.strokeCap = 'round';
-                svg_import.strokeJoin = 'round';
-                // svg_import.data.origStrokeColor = svg_import.strokeColor;
-                svg_import.shadowColor = svg_import.strokeColor;
-                svg_import.shadowBlur = 5;
-                svg_import.shadowOffset = new paper.Point(0, 0);
-                // fill with transparent white :-)
-                // that helps so we can hitTest against the fill...
-                // svg_import.fillColor = new Color(1, 1, 1, 0.001);
-                // anchor.position = group.position;
-                // anchor.position = svg_import.position;
-                anchor.fitBounds(svg_import.bounds);
-            },
-            onError: function (message) {
-                console.error(message);
-            }
-        }
-    );
 
-
-    // make a helper circle
-    var anchor = paper.Path.Rectangle({
+    var test = new paper.Path.Rectangle({
         point: [0, 0],
-        size: [300, 450],
-        strokeColor: 'lime'
-        // strokeColor: null
+        size: [150, 150],
+        strokeColor: 'lime',
+        fillColor: new paper.Color(1,1,1, 0.2),
+        name:"rect0"
     });
 
-    var group = new paper.Group(
-        svg_import,
-        anchor
-    );
-    group.position = paper.view.center;
-    group.data.drag_active = false;
-    group.data.check_collisions = function() {
-        if (group.intersects(collision_object)) {
-        // if (svg_import.children[0].intersects(collision_object)) {
-            svg_import.fillColor = new paper.Color(1, 0, 0, 0.5);
-        } else {
-            // group.fillColor = null;
-            svg_import.fillColor = new paper.Color(0.4, 0.7, 1, 0.4);
-        }
-    };
+    // make some objects
+    var obj_list = [
+        paper.Path.Rectangle({
+            point: [20, 20],
+            size: [150, 500],
+            strokeColor: 'lime',
+            fillColor: new paper.Color(1,1,1, 0.2),
+            name:"rect1"
+        }),
+        paper.Path.Rectangle({
+            point: [100, 20],
+            size: [150, 150],
+            strokeColor: 'red',
+            fillColor: new paper.Color(1,1,1, 0.2),
+            name:"rect2"
+        }),
+        paper.Path.Circle({
+            center: paper.view.center,
+            radius: 170,
+            strokeColor: 'blue',
+            fillColor: new paper.Color(1,1,1, 0.2),
+            name:"circle1"
+        }),
+        paper.Path.Circle({
+            center: paper.view.center.subtract(new paper.Point(300, 0)),
+            radius: [160, 70],
+            strokeColor: 'orange',
+            fillColor: new paper.Color(1,1,1, 0.2),
+            name:"circle2"
+        }),
+    ];
 
-    // var collision_object = Path.RoundRectangle(
-    //     new Rectangle(
-    //         view.center,
-    //         view.bounds.bottomRight - (view.size/3)
-    //     ),
-    //     50
-    // );
-    var collision_object = paper.Path.Rectangle(
-        new paper.Rectangle(
-            paper.view.center,
-            paper.view.bounds.bottomRight
-        )
-    );
-    collision_object.strokeColor = new paper.Color(0.3, 0.3, 0.3);
-    collision_object.fillColor =  new paper.Color(0.3, 0.3, 0.3);
-    collision_object.moveBelow(group);
-
-
-
-    // this way you have to hit the lines to be able to drag..
-    // http://paperjs.org/reference/group/#onmousedrag
-    // group.onMouseDrag = function(event) {
-    //     group.position += event.delta;
-    // };
-
-
-    // paper.view.onMouseDown = function(event) {
-    function onDownHandler(event) {
-        console.log("onDownHandler!");
-        console.log("event", event);
+    // with this we check / get the item we want to move..
+    function getItemAtPoint(x, y) {
+        console.log("getItemAtPoint!");
+        // console.log("event", event);
         // console.log("event.point", event.point);
+        console.log("x", x, "y", y);
         // this is a finer way to test:
         //var event_point = event.point;
-        var event_point = new paper.Point(event.x0, event.y0);
-        var hit_result = group.hitTest(
+        var event_point = new paper.Point(x, y);
+        var hit_result = paper.project.hitTest(
             event_point,
             {
-                // fill: true,
-                fill: false,
+                fill: true,
                 stroke: true,
                 segments: true,
-                tolerance: 50
+                tolerance: 5
             }
         );
+        var hit_item = null;
         if (hit_result) {
-            console.log("hit_result:", hit_result);
-            group.data.drag_active = true;
+            hit_item = hit_result.item;
         }
+        console.log("hit_item:", hit_item);
+        return hit_item;
     }
-    // paper.view.onMouseDown = onDownHandler;
 
-    // that is the global handller.
-    // paper.view.onMouseDrag = function(event) {
+
     function onDragHandler(event) {
-        // console.log("onDragHandler!");
-        // console.log("event", event);
-        // so we have to first check if the event is inside of our group bounds:
-        // if (group.contains(event.point)) {
-        //     group.position += event.delta;
-        // }
+        // console.group("onDragHandler:");
 
-        if (group.data.drag_active) {
+        // console.log("event.target", event.target);
+        // console.log("event.target.name", event.target.name);
+        // console.log("event.dx", event.dx, "event.dy", event.dy);
 
-            // console.log("event.dx", event.dx, "event.dy", event.dy);
-            //var event_delta = event.delta;
-            var event_delta = new paper.Point(event.dx, event.dy);
-            // console.log("event_delta", event_delta);
+        var event_delta = new paper.Point(event.dx, event.dy);
+        // console.log("event_delta", event_delta);
+        event.target.translate(event_delta);
 
-            // this is only possible in paperscript:
-            // group.position += event.delta;
-            // the same in javascript:
-            // group.position = group.position.add(event_delta);
-            group.translate(event_delta);
-            // if (group.isInside(view.bounds)) {
-            //     group.position += event.delta;
-            // }
-            group.data.check_collisions();
-        }
+        console.groupEnd();
     }
-    // paper.view.onMouseDrag = onDragHandler;
 
     function onRotateHandler(event) {
         console.log("onRotateHandler!");
-        console.log("event", event);
+        // console.log("event", event);
 
-        if (group.data.drag_active) {
+        var event_delta = new paper.Point(event.dx, event.dy);
+        event.target.translate(event_delta);
 
-            var event_delta = new paper.Point(event.dx, event.dy);
-            group.translate(event_delta);
+        var event_deltaAngle = event.da;
+        // console.log("event_deltaAngle", event_deltaAngle);
+        event.target.rotate(event_deltaAngle);
 
-            var event_deltaAngle = event.da;
-            console.log("event_deltaAngle", event_deltaAngle);
-            group.rotate(event_deltaAngle);
-
-            group.data.check_collisions();
-        }
     }
 
-    // paper.view.onMouseUp = function(event) {
     function onUpHandler(event) {
-
-        if (group.data.drag_active) {
-            console.log("onUpHandler!");
-            console.log("event", event);
-            // var event_deltaAngle = event.da;
-            // console.log("event_deltaAngle", event_deltaAngle);
-
-            console.log("group.rotation", group.rotation);
-            // this is only possible in paperscript:
-            // group.position += event.delta;
-            // the same in javascript:
-            // if (group.rotation) {
-            //
-            // }
-            // if (group.isInside(view.bounds)) {
-            //     group.position += event.delta;
-            // }
-            group.data.check_collisions();
-
-            group.data.drag_active = false;
-        }
+        console.log("onUpHandler:");
+        console.log("event.target.name", event.target.name);
+        // if (event.target.data.drag_active) {
+        //     console.log("event", event);
+        //     // event.target.data.drag_active = false;
+        // }
     }
-    // paper.view.onMouseUp = onUpHandler;
-
-
-    paper.view.onKeyDown = function(event) {
-        if(event.key == 'b') {
-            // toggle show boundingbox
-            group.selected = !group.selected;
-        }
-        if(event.key == '-') {
-            svg_import.shadowBlur -= 2.5;
-        }
-        if(event.key == '+') {
-            svg_import.shadowBlur += 2.5;
-        }
-        if (event.modifiers.control) {
-            if(event.key == '-') {
-                svg_import.strokeWidth -= 1;
-            }
-            if(event.key == '+') {
-                svg_import.strokeWidth += 1;
-            }
-        }
-    };
-
-
-    paper.view.onResize = function (event) {
-        collision_object.bounds = new paper.Rectangle(
-            paper.view.center,
-            paper.view.bounds.bottomRight
-        );
-    };
-
 
     paper.view.draw();
 
@@ -246,61 +125,86 @@ window.onload = function() {
     var myCanvas_element = document.querySelector("#myCanvas");
     console.log("myCanvas_element", myCanvas_element);
 
-    // interact('.draggable')
-    interact(myCanvas_element)
-        .on('click', listener)
-        .on('tab', listener)
-        .on('doubletap', listener)
-        .on('hold', listener)
-        // .on('dragstart', listener)
-        // .on('dragmove', listener)
-        // .on('dragend', listener)
-        // .on(['resizemove', 'resizeend'], listener)
-        // .on({
-        //     gesturestart: listener,
-        //     gesturemove: listener,
-        //     gestureend: listener
-        // })
-        ;
+    // interact(myCanvas_element)
+    //     .on('click', listener)
+    //     .on('tab', listener)
+    //     .on('doubletap', listener)
+    //     .on('hold', listener)
+    //     .on('dragstart', listener)
+    //     .on('dragmove', listener)
+    //     .on('dragend', listener)
+    //     .on(['resizemove', 'resizeend'], listener)
+    //     .on({
+    //         gesturestart: listener,
+    //         gesturemove: listener,
+    //         gestureend: listener
+    //     })
+    //     ;
 
-    // target elements with the "draggable" class
-    // interact('.draggable')
     interact(myCanvas_element)
     .draggable({
         enabled: true,
-        // manualStart: true,
+        manualStart: true,
         // enable inertial throwing
         inertia: true,
         maxPerElement: 10,
-        onstart: onDownHandler,
+        // onstart: onDownHandler,
         // call this function on every dragmove event
         onmove: onDragHandler,
         // call this function on every dragend event
         onend: onUpHandler
     })
-    // .on('dragstart', function (event) {
-    //     var interaction = event.interaction;
-    //     onDownHandler(event);
-    //     if (!interaction.interacting()) {
-    //       interaction.start({ name: 'drag' },
-    //                         event.interactable,
-    //                         event.currentTarget);
-    //     }
-    // })
-    // .on('dragstart', function (event) {
-    //     onDownHandler(event);
-    // })
-    // .resizable({
-    //     enabled: false,
-    // })
+    .on('down', function (event) {
+        // console.group("down handler");
+        // console.log("event", event);
+        var interaction = event.interaction;
+        var hit_item = getItemAtPoint(event.clientX, event.clientY);
+        // var hit_item = getItemAtPoint(event.x0, event.y0);
+        if (hit_item) {
+            if (!interaction.interacting()) {
+                interaction.start(
+                    { name: 'drag' },
+                    // { name: 'gesture' },
+                    event.interactable,
+                    // event.currentTarget
+                    hit_item
+                 );
+            }
+        }
+        // console.groupEnd();
+    })
     .gesturable({
         enabled: true,
         maxPerElement: 10,
-        onstart: onDownHandler,
+        // onstart: onDownHandler,
         // call this function on every gesturemove event
         onmove: onRotateHandler,
         // call this function on every gestureend event
-        onend: onUpHandler
-    });
+        // onend: onUpHandler
+    })
+    .rectChecker(function (element) {
+        // https://hacks.mozilla.org/2014/11/interact-js-for-drag-and-drop-resizing-and-multi-touch-gestures/
+        // console.log("rectChecker");
+        // console.log("element", element);
+        // console.log("element instanceof paper.Path", element instanceof paper.Path);
+        // return a suitable object for interact.js
+        var result_rect = null;
+        // check for paper js thing
+        if (element.bounds) {
+            result_rect = {
+              left  : element.bounds.left,
+              top   : element.bounds.top,
+              right : element.bounds.right,
+              bottom: element.bounds.bottom
+            };
+        } else {
+            // echeck for html element
+            if (element.getClientRects) {
+                result_rect = element.getClientRects()[0];
+            }
+        }
+        return result_rect;
+    })
+    ;
 
 };
