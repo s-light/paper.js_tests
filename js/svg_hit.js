@@ -16,18 +16,20 @@ project.importSVG(
             console.log("svg loaded.");
             item.name = "The Imported SVG things..";
             svg_import.addChild(item);
-            svg_import.fillColor = new Color(0.4, 0.7, 1, 0.4);
-            svg_import.strokeColor = new Color(0.4, 0.7, 1, 0.8);
+            svg_import.strokeColor = new Color(0, 1, 0, 0.8);
             svg_import.strokeWidth = 2;
             svg_import.strokeCap = 'round';
             svg_import.strokeJoin = 'round';
+
             // svg_import.data.origStrokeColor = svg_import.strokeColor;
             svg_import.shadowColor = svg_import.strokeColor;
             svg_import.shadowBlur = 5;
             svg_import.shadowOffset = new Point(0, 0);
+
             // fill with transparent white :-)
             // that helps so we can hitTest against the fill...
             // svg_import.fillColor = new Color(1, 1, 1, 0.001);
+            
             // anchor.position = group.position;
             anchor.position = svg_import.position;
         },
@@ -42,7 +44,7 @@ project.importSVG(
 var anchor = Path.Circle({
     center: view.center,
     radius: 10,
-    strokeColor: null
+    strokeColor: 'cyan'
 });
 
 var group = new Group(
