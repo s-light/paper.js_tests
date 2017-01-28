@@ -13,13 +13,13 @@ window.onload = function() {
 
     paper.setup('myCanvas');
 
-    var test = new paper.Path.Rectangle({
-        point: [0, 0],
-        size: [150, 150],
-        strokeColor: 'lime',
-        fillColor: new paper.Color(1,1,1, 0.2),
-        name:"rect0"
-    });
+    // var test = new paper.Path.Rectangle({
+    //     point: [0, 0],
+    //     size: [150, 150],
+    //     strokeColor: 'lime',
+    //     fillColor: new paper.Color(1,1,1, 0.2),
+    //     name:"rect0"
+    // });
 
     // make some objects
     var obj_list = [
@@ -37,16 +37,16 @@ window.onload = function() {
             fillColor: new paper.Color(1,1,1, 0.2),
             name:"rect2"
         }),
-        paper.Path.Circle({
-            center: paper.view.center,
-            radius: 170,
-            strokeColor: 'blue',
-            fillColor: new paper.Color(1,1,1, 0.2),
-            name:"circle1"
-        }),
+        // paper.Path.Circle({
+        //     center: paper.view.center,
+        //     radius: 170,
+        //     strokeColor: 'blue',
+        //     fillColor: new paper.Color(1,1,1, 0.2),
+        //     name:"circle1"
+        // }),
         paper.Path.Circle({
             center: paper.view.center.subtract(new paper.Point(300, 0)),
-            radius: [160, 70],
+            radius: [200, 80],
             strokeColor: 'orange',
             fillColor: new paper.Color(1,1,1, 0.2),
             name:"circle2"
@@ -75,7 +75,7 @@ window.onload = function() {
         if (hit_result) {
             hit_item = hit_result.item;
         }
-        console.log("hit_item:", hit_item);
+        // console.log("hit_item:", hit_item);
         return hit_item;
     }
 
@@ -146,7 +146,8 @@ window.onload = function() {
         enabled: true,
         manualStart: true,
         // enable inertial throwing
-        inertia: true,
+        // inertia: true,
+        inertia: false,
         maxPerElement: 10,
         // onstart: onDownHandler,
         // call this function on every dragmove event
@@ -154,33 +155,50 @@ window.onload = function() {
         // call this function on every dragend event
         onend: onUpHandler
     })
-    .on('down', function (event) {
-        // console.group("down handler");
-        // console.log("event", event);
-        var interaction = event.interaction;
-        var hit_item = getItemAtPoint(event.clientX, event.clientY);
-        // var hit_item = getItemAtPoint(event.x0, event.y0);
-        if (hit_item) {
-            if (!interaction.interacting()) {
-                interaction.start(
-                    { name: 'drag' },
-                    // { name: 'gesture' },
-                    event.interactable,
-                    // event.currentTarget
-                    hit_item
-                 );
-            }
-        }
-        // console.groupEnd();
-    })
     .gesturable({
         enabled: true,
+        manualStart: true,
         maxPerElement: 10,
         // onstart: onDownHandler,
         // call this function on every gesturemove event
         onmove: onRotateHandler,
         // call this function on every gestureend event
         // onend: onUpHandler
+    })
+    .on('down', function (event) {
+        console.group("down handler");
+        // console.log("event", event);
+        // console.log("event.interactable", event.interactable);
+        console.log("event.interaction.interacting()", event.interaction.interacting());
+
+        var interaction = event.interaction;
+        var hit_item = getItemAtPoint(event.clientX, event.clientY);
+        // var hit_item = getItemAtPoint(event.x0, event.y0);
+        if (hit_item) {
+            console.log("hit_item.name", hit_item.name);
+            console.log("event.currentTarget", event.currentTarget);
+            // console.log("interaction.interacting()", interaction.interacting());
+
+            // https://github.com/taye/interact.js/issues/480#issuecomment-275708556
+            if (interaction.interacting()) {
+                interaction.start(
+                    { name: 'gesture' },
+                    event.interactable,
+                    // event.currentTarget
+                    hit_item
+                 );
+            } else {
+                // first pointer goes down, start a drag
+                interaction.start(
+                    { name: 'drag' },
+                    event.interactable,
+                    // event.currentTarget
+                    hit_item
+                 );
+            }
+        }
+
+        console.groupEnd();
     })
     .rectChecker(function (element) {
         // https://hacks.mozilla.org/2014/11/interact-js-for-drag-and-drop-resizing-and-multi-touch-gestures/
