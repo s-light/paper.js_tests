@@ -55,10 +55,10 @@ window.onload = function() {
 
     // with this we check / get the item we want to move..
     function getItemAtPoint(x, y) {
-        console.log("getItemAtPoint!");
+        // console.log("getItemAtPoint!");
         // console.log("event", event);
         // console.log("event.point", event.point);
-        console.log("x", x, "y", y);
+        // console.log("x", x, "y", y);
         // this is a finer way to test:
         //var event_point = event.point;
         var event_point = new paper.Point(x, y);
@@ -87,6 +87,7 @@ window.onload = function() {
         // console.log("event.target.name", event.target.name);
         // console.log("event.dx", event.dx, "event.dy", event.dy);
 
+        // create new paper.js point
         var event_delta = new paper.Point(event.dx, event.dy);
         // console.log("event_delta", event_delta);
         event.target.translate(event_delta);
@@ -176,11 +177,16 @@ window.onload = function() {
         // var hit_item = getItemAtPoint(event.x0, event.y0);
         if (hit_item) {
             console.log("hit_item.name", hit_item.name);
-            console.log("event.currentTarget", event.currentTarget);
+            // console.log("event.currentTarget", event.currentTarget);
             // console.log("interaction.interacting()", interaction.interacting());
 
             // https://github.com/taye/interact.js/issues/480#issuecomment-275708556
             if (interaction.interacting()) {
+
+                // stop dragging
+                interaction.end();
+
+                // start gesture
                 interaction.start(
                     { name: 'gesture' },
                     event.interactable,
