@@ -228,7 +228,7 @@ function setup() {
     var drawingLayer = new Layer();
     drawingLayer.name = "drawingLayer";
     drawingLayer.activate();
-    console.clear();
+    // console.clear();
 }
 
 setup();
@@ -298,21 +298,22 @@ function game_items_bouncing() {
 }
 
 
-// var move_active = true;
-var move_active = false;
+var move_active = true;
+// var move_active = false;
 
 view.onFrame = function(event) {
-    //console.log("click");
+    // console.log("onFrame");
     if (move_active) {
 		balls_move();
         game_items_bouncing();
 	}
-
+    // console.log("onFrame done.");
 };
 
 
 
 view.onClick = function(event) {
+    console.log("onClick fired.");
     if (event.modifiers.shift) {
         console.log("toggle moving.");
         move_active = !move_active;

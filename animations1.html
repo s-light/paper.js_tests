@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>svg tests</title>
+    <title>animations1</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
     <link rel="stylesheet" href="css/main.css">
@@ -10,11 +10,12 @@
     <script src="js/showfps.js"></script>
 
     <script src="bower_components/paper/dist/paper-full.js"></script>
+    <script src="bower_components/animatePaper.js/dist/paper-animate-browser.min.js"></script>
 
-    <script src="bower_components/interactjs/dist/interact.js"></script>
+    <!-- <script src="bower_components/interactjs/dist/interact.js"></script> -->
 
     <!-- Load external javascript and associate it with myCanvas -->
-    <script type="text/javascript" src="js/multitouch.js"></script>
+    <script type="text/javascript" src="js/animations1.js"></script>
 
     <meta
         name="viewport"
@@ -25,8 +26,17 @@
 <body>
     <div class="info">
         <p>
-            test to combine <a href="http://interactjs.io/">interact.js</a> with paper.js - with multitouch support. WIP.
+            testing things with <a href="http://eartz.github.io/animatePaper.js/">animatePaper.js</a>.<br>
         </p>
+        <ul>
+            <li>
+                click on a point on the canvas and the object
+                should move there in an smooth animated way..
+            </li>
+            <li>
+                click + Shift-Key to toggle 'breath' effect
+            </li>
+        </ul>
     </div>
 	<canvas id="myCanvas" resize="true"></canvas>
 </body>

@@ -34,6 +34,9 @@ canvas[resize] {
 
 .info {
     position: absolute;
-    margin: 0;
-    padding: 1em;
+    margin: 1em 2em;
+    padding: 0 0.5em;
+    background-color: rgba(0, 0, 50, 0.2);
+    /*TODO add box-shadow for smoother border..*/
+    /*box-shadow: */
 }
