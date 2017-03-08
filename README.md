@@ -4,7 +4,7 @@ random tests with paper.js
 
 clone or download this repository.  
 then install dependencies with [bower](https://bower.io/):  
-`tuio.js-examples$ bower install`
+`paper.js-examples$ bower install`
 
 eventually it is better to use some sort of webserver to view the examples:  
 for example [python2 SimpleHTTPServer](https://docs.python.org/2/library/simplehttpserver.html)  
