@@ -32,6 +32,10 @@ class MainApp {
         this.paperscope = paper.setup(this.canvas_el);
         // console.log("this.paperscope", this.paperscope);
 
+        // set applyMatrix=false --> this means matrix can be read back...
+        this.paperscope.settings.applyMatrix = false;
+        // set this scope.project active:
+        // all newly created paper Objects go into this project.
         this.paperscope.project.activate();
 
         this.rect0 = new paper.Path.Rectangle({
