@@ -250,8 +250,6 @@ class MultiAnimation {
 
 }
 
-var test = {};
-
 class MainApp {
     constructor(canvas_el) {
         this.canvas_el = canvas_el;
