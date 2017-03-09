@@ -1,161 +1,107 @@
 
-class MultiAnimation {
-    constructor({ filename, animations, loop=false } = {}) {
+class MultiAnimations {
+    constructor({ group, animationsConfig, loop=false } = {}) {
         console.log("create MultiAnimation");
         this._ready = false;
         this._active = false;
 
-        this.filename = filename;
-        this._animationsConfig = animations;
+        this._group = new paper.Group();
+        this._animationsElementsSet = false;
+        this._animationsElements = new Map();
+        this._animationsConfigSet = false;
+        this._animationsConfig = new Map();
 
-        this.group = new paper.Group();
-        this._animation_elements = new Map();
+
+        if (group) {
+            this.group = group;
+        }
+        if (animationsConfig) {
+            this.animationsConfig = animationsConfig;
+        }
+        if (group && animationsConfig) {
+            this.mapConfigs2Elements();
+        }
 
         // set loop to true to repeat forever
         // set to integer to repeate n times
         this.loop = loop;
-
-        if (this.filename) {
-            this.loadSVG(this.filename);
-        }
-        // this is now handled insind of loadSVG
-        // if (this._animationsConfig === undefined) {
-        //     this.loadAnimations();
-        // } else {
-        //     this._ready = true;
-        // }
     }
 
-    loadSVG(filename) {
-        // console.log("loadSVG");
-        this.filename = filename;
-        this.group.importSVG(
-            this.filename,
-            {
-                expandShapes: true,
-                insert: true,
-                // onLoad: (item) => onSVGload(item),
-                onLoad: (item) => {
-                    // console.log("svg loaded", item.name);
-                    // console.log("get path", item.children.layer1.children.myloop);
-                    // in inkscape you have to name one layer 'animation'
-                    // we look for this child!
-                    const animation_layer = item.children.animation;
-                    if (animation_layer) {
-                        // console.log("animation_layer", animation_layer);
-                        for (const el of animation_layer.children) {
-                            // console.log(" '" + el.name + "'");
-                            if (this._animation_elements.get(el.name) === undefined) {
-                                el.data._playcount = 0;
-                                el.data._animationConfigs = {};
-                                this._animation_elements.set(el.name, el);
-                            } else {
-                                console.error(
-                                    "element '" + el.name +
-                                    "' allready in list. please make sure every id is unique."
-                                );
-                            }
-                        }
-                        console.log(
-                            "SVG-File '" + this.filename + "' " +
-                            "contains the following animatable elements: [" +
-                            [...(this._animation_elements.keys())].join(", ") +
-                            "]"
-                        );
-                        if (this._animationsConfig === undefined) {
-                            this.loadAnimations();
-                        } else {
-                            this._ready = true;
-                        }
-                        // console.log("this._animation_elements", this._animation_elements);
-                        // console.log("this._animation_elements array", [...this._animation_elements]);
-                        // console.log("this._animation_elements json", JSON.stringify([...this._animation_elements]));
-                    } else {
-                        console.error(
-                            "Parsing of SVG-File Failed!\n" +
-                            "no layer 'animation' found.\n" +
-                            "please make sure that one layer in hase the id 'animation' " +
-                            "and move needed objects to this.\n" +
-                            "in inkscape you can do this in the XML editor (Ctrl+Shift+X)"
-                        );
-                    }
-                },
-                onError: (message) => {
-                    console.error(message);
-                }
-            }
-        );
-    }
 
-    loadAnimations(filename=undefined) {
-        // format of JSON file:
-        // Map compatible
-        // [ [ "el1", {} ], [ "el2", {} ], [ "el3", {} ] ]
-        console.log("loadAnimations");
-        if (filename) {
-            this.animationsFilename = filename;
+    get group() {
+        return this._group;
+    }
+    set group(group) {
+        console.log("group", group);
+        if (group instanceof paper.Group) {
+            this._group = group;
+            this._parseGroupChilds();
         } else {
-            this.animationsFilename = this.filename.replace(/\.svg/i, ".json");
+            console.error("error: given object is not an paper.Group type!");
+        }
+    }
+
+    get animationsConfig() {
+        return this._animationsConfig;
+    }
+    set animationsConfig(animationsConfig) {
+        console.log("animationsConfig", animationsConfig);
+        if (animationsConfig instanceof Map) {
+            this._animationsConfig = animationsConfig;
+            this._animationsConfigSet = true;
+            this.mapConfigs2Elements();
+        } else {
+            console.error("error: given object is not an Map type!");
+        }
+    }
+
+    _parseGroupChilds() {
+        // console.log("_parseGroupChilds");
+        try {
+            // first clear Map.
+            this._animationsElements.clear();
+            // add new elements
+            for (const el of this.group.children) {
+                // console.log(" '" + el.name + "'");
+                if (!this._animationsElements.has(el.name)) {
+                    el.data._playcount = 0;
+                    el.data._animationConfigs = {};
+                    this._animationsElements.set(el.name, el);
+                } else {
+                    console.error(
+                        "element '" + el.name +
+                        "' allready in list. please make sure every id/name is unique."
+                    );
+                }
+            }
+            console.log(
+                "Group contains the following animatable elements: [" +
+                [...(this._animationsElements.keys())].join(", ") +
+                "]"
+            );
+            this._animationsElementsSet = true;
+        } catch (e) {
+            console.error("parsing of group childs failed!", e);
+        }
+    }
+
+    mapConfigs2Elements() {
+        // we need to map the _animations configurations to the elements:
+        for (const [elName, el] of this._animationsElements.entries()) {
+            // console.log("elName", elName, "el", el);
+            if (this._animationsConfig.has(elName)) {
+                el.data._animationConfigs = this._animationsConfig.get(elName);
+            } else {
+                el.data._animationConfigs = null;
+                console.info("missing animation configuration for element '" +
+                    elName +
+                    "'. this Element will not animate."
+                );
+            }
         }
 
-        // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
-        const load_httpRequest = new XMLHttpRequest();
-        // load_httpRequest.onreadystatechange  = () => {
-        load_httpRequest.addEventListener("load", (event) => {
-            try {
-                if (event.target.status === 200) {
-                    // console.log("event.target.response", event.target.response);
-                    let respJSON = null;
-                    try {
-                        respJSON = JSON.parse(event.target.response);
-                        // console.log("respJSON", respJSON);
-                    } catch (e) {
-                        console.error("Error while parsing JSON:", e);
-                    }
-                    try {
-                        this._animationsConfig = new Map(respJSON);
-                        // console.log("this._animationsConfig", this._animationsConfig);
-                    } catch (e) {
-                        console.error("Error while converting response JSON to Map:", e);
-                    }
-                    console.log(
-                        "Successfully loaded animations config from '" +
-                        this.animationsFilename + "' :",
-                        this._animationsConfig
-                    );
-                    // now we need to map the _animations configurations to the elements:
-                    for (const [elName, el] of this._animation_elements.entries()) {
-                        // console.log("elName", elName, "el", el);
-                        if (this._animationsConfig.has(elName)) {
-                            el.data._animationConfigs = this._animationsConfig.get(elName);
-                        } else {
-                            el.data._animationConfigs = null;
-                            console.info("missing animation configuration for element '" +
-                                elName +
-                                "'. this Element will not animate."
-                            );
-                        }
-                    }
-
-                    // now all preparations are done.
-                    this._ready = true;
-
-                } else {
-                    console.error('There was a problem with the request.');
-                }
-            } catch( e ) {
-                console.error('Caught Exception:', e);
-            }
-        });
-        // hardcore no - cache
-        // load_httpRequest.open(
-        //     'GET',
-        //     this.animationsFilename + "?" + (new Date()).getTime()
-        // );
-        load_httpRequest.open('GET', this.animationsFilename);
-        // Cache-Control: no-cache
-        load_httpRequest.setRequestHeader('Cache-Control', 'no-cache');
-        load_httpRequest.send();
+        // now all preparations are done.
+        this._ready = true;
     }
 
     toggle() {
@@ -178,7 +124,7 @@ class MultiAnimation {
     start() {
         // start animation
         this._active = true;
-        for (const [elName, el] of this._animation_elements.entries()) {
+        for (const [elName, el] of this._animationsElements.entries()) {
             el.data._playcount = 0;
             this._animateEl(elName);
         }
@@ -192,20 +138,20 @@ class MultiAnimation {
     stop(goToEnd=false) {
         // immediately stop animation
         this._active = false;
-        for (const el of this._animation_elements) {
+        for (const el of this._animationsElements) {
             el.stop(goToEnd);
         }
     }
 
     _animateEl(elName) {
-        const el = this._animation_elements.get(elName);
+        const el = this._animationsElements.get(elName);
         const animationConfigs = el.data._animationConfigs;
         if (animationConfigs) {
+            // console.log("animationConfigs", animationConfigs);
             // _animationConfigs must be an array.
             // we override the complete function in the last element.
             animationConfigs[animationConfigs.length - 1]
                 .settings.complete = () => this._complete(elName);
-            // console.log("animationConfigs", animationConfigs);
             // start animation
             el.animate(animationConfigs);
         }
@@ -213,7 +159,7 @@ class MultiAnimation {
 
     _complete(elName) {
         // console.log("complete", elName);
-        const el = this._animation_elements.get(elName);
+        const el = this._animationsElements.get(elName);
         if (el) {
             // console.log("el", el);
             // we add 1 to playcount if the animation completed.
@@ -250,23 +196,179 @@ class MultiAnimation {
 
 }
 
+
+class MultiAnimationSVG extends MultiAnimations {
+    constructor(
+        {
+            filenameSVG,
+            filenameConfig,
+            animationsConfig,
+            loop=false
+        } = {}
+    ) {
+        console.log("create MultiAnimationSVG");
+
+        super({
+            animationsConfig: animationsConfig,
+            loop:loop
+        });
+
+        this.filenameSVG = filenameSVG;
+        this.filenameConfig = filenameConfig;
+
+        this.groupSVG = new paper.Group();
+
+        if (this.filenameSVG) {
+            this.loadSVG(this.filenameSVG);
+        }
+        // this is now handled insind of loadSVG
+        // if (this._animationsConfig === undefined) {
+        //     this.loadConfig();
+        // } else {
+        //     this._ready = true;
+        // }
+    }
+
+    loadSVG(filename) {
+        // console.log("loadSVG");
+        this.filenameSVG = filename;
+        this.groupSVG.importSVG(
+            this.filenameSVG,
+            {
+                expandShapes: true,
+                insert: true,
+                // onLoad: (item) => onSVGload(item),
+                onLoad: (item) => {
+                    // console.log("svg loaded", item.name);
+                    // console.log("item", item);
+                    // console.log("get path", item.children.layer1.children.myloop);
+                    // in inkscape you have to name one layer 'animation'
+                    // we look for this child!
+                    const animation_layer = item.children.animation;
+                    if (animation_layer) {
+                        // console.log("animation_layer", animation_layer);
+                        // first clear list
+                        // console.log("this", this);
+                        // console.log("animation_layer", animation_layer);
+                        // console.log("animation_layer.children", animation_layer.children);
+                        // console.log("this._group", this._group);
+
+                        this._group.removeChildren();
+                        // with this parsing we link the children from of the
+                        // svg 'animation' layer to our internal simple _group
+                        // for (const el of animation_layer.children) {
+                        //     console.log(" '" + el.name + "'");
+                        //     // add to internal _group
+                        //     // this._group.addChild(el);
+                        // }
+                        this._group.addChildren(animation_layer.children);
+                        // console.log("this._group", this._group);
+                        this._parseGroupChilds();
+
+                        if (this._animationsConfigSet) {
+                            // update mapping
+                            this.mapConfigs2Elements();
+                            this._ready = true;
+                        } else {
+                            this.loadConfig();
+                        }
+                        // console.log("this._animationsElements", this._animationsElements);
+                        // console.log("this._animationsElements array", [...this._animationsElements]);
+                        // console.log("this._animationsElements json", JSON.stringify([...this._animationsElements]));
+                    } else {
+                        console.error(
+                            "Parsing of SVG-File Failed!\n" +
+                            "no layer 'animation' found.\n" +
+                            "please make sure that one layer in hase the id 'animation' " +
+                            "and move needed objects to this.\n" +
+                            "in inkscape you can do this in the XML editor (Ctrl+Shift+X)"
+                        );
+                    }
+                },
+                onError: (message) => {
+                    console.error(message);
+                }
+            }
+        );
+    }
+
+    loadConfig(filename=undefined) {
+        // format of JSON file:
+        // Map compatible
+        // [ [ "el1", {} ], [ "el2", {} ], [ "el3", {} ] ]
+        // console.log("loadConfig");
+        if (filename) {
+            this.filenameConfig = filename;
+        } else {
+            this.filenameConfig = this.filenameSVG.replace(/\.svg/i, ".json");
+        }
+
+        // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+        const load_httpRequest = new XMLHttpRequest();
+        // load_httpRequest.onreadystatechange  = () => {
+        load_httpRequest.addEventListener("load", (event) => {
+            try {
+                if (event.target.status === 200) {
+                    // console.log("event.target.response", event.target.response);
+                    let respJSON;
+                    try {
+                        respJSON = JSON.parse(event.target.response);
+                        // console.log("respJSON", respJSON);
+                    } catch (e) {
+                        console.error("Error while parsing JSON:", e);
+                    }
+                    let respMap;
+                    try {
+                        respMap = new Map(respJSON);
+                        // console.log("this._animationsConfig", this._animationsConfig);
+                    } catch (e) {
+                        console.error("Error while converting response JSON to Map:", e);
+                    }
+                    this._animationsConfig = respMap;
+                    console.log(
+                        "Successfully loaded animations config from '" +
+                        this.filenameConfig + "' :",
+                        this._animationsConfig
+                    );
+
+                    this.mapConfigs2Elements();
+
+                } else {
+                    console.error('There was a problem with the request.');
+                }
+            } catch( e ) {
+                console.error('Caught Exception:', e);
+            }
+        });
+        // hardcore no - cache
+        // load_httpRequest.open(
+        //     'GET',
+        //     this.filenameConfig + "?" + (new Date()).getTime()
+        // );
+        load_httpRequest.open('GET', this.filenameConfig);
+        // Cache-Control: no-cache
+        load_httpRequest.setRequestHeader('Cache-Control', 'no-cache');
+        load_httpRequest.send();
+    }
+}
+
+
 class MainApp {
     constructor(canvas_el) {
         this.canvas_el = canvas_el;
 
         this._initPaperJS();
 
-        this.compAni = new MultiAnimation({
-            // filename:"./svg/button_complex.svg"
-            filename:"./svg/button_simple.svg"
-            // filename:"./svg/Colibri__single_lineart.svg"
+
+        this.compAni = new MultiAnimationSVG({
+            // filenameSVG:"./svg/button_complex.svg"
+            filenameSVG:"./svg/button_simple.svg"
+            // filenameSVG:"./svg/Colibri__single_lineart.svg"
         });
         this.compAni.loop = true;
 
+
         this._initAnimations();
-
-
-
 
     }
 
