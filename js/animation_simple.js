@@ -114,7 +114,8 @@ class MainApp {
         // this.paperscope.view.draw();
 
         // convert absolute position to relative
-        // this avoids a bug in animatePaper.js:
+        // this avoids a bug in older animatePaper.js:
+        // see report at https://github.com/Eartz/animatePaper.js/issues/8
 
         const x_relative_number =  event.clientX - this.rect0.position.x;
         let x_relative = String(x_relative_number);
@@ -126,13 +127,10 @@ class MainApp {
         this.rect0.animate({
             properties: {
                 position: {
-                    // x: position_new.x,
-                    // y: position_new.y,
                     // x: event.clientX,
                     x: x_relative,
                     y: event.clientY,
                 }
-                // position: position_new
             },
             settings: {
                 duration: 500,
