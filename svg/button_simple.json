@@ -4,7 +4,8 @@
         [
             {
                 "properties":{
-                    "opacity":1
+                    "opacity":1,
+                    "strokeWidth":2
                 },
                 "settings":{
                     "duration":1600,
@@ -13,7 +14,8 @@
             },
             {
                 "properties":{
-                    "opacity":0.1
+                    "opacity":0.3,
+                    "strokeWidth":10
                 },
                 "settings":{
                     "duration":1600,
