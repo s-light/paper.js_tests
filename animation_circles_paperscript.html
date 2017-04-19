@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>circles paperscript</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <link rel="stylesheet" href="css/main.css">
+
+    <style media="screen">
+        body {
+            background-color: rgb(0, 50, 100);
+        }
+    </style>
+
+    <script src="bower_components/stats.js/build/stats.js"></script>
+    <script src="js/showfps.js"></script>
+
+    <script src="bower_components/paper/dist/paper-full.js"></script>
+
+    <!-- Load external javascript and associate it with myCanvas -->
+    <script
+        type="text/paperscript"
+        src="js/animation_circles_paperscript.js"
+        canvas="myCanvas"
+    >
+    </script>
+
+
+</head>
+<body>
+    <div class="info">
+        <p>
+            testing animation with gradients. (paper script version)
+        </p>
+    </div>
+	<canvas id="myCanvas" resize="true"></canvas>
+</body>
+</html>

@@ -22,8 +22,11 @@
     "tests"
   ],
   "dependencies": {
-    "animatePaper.js": "paper-animate#^0.9.0",
-    "interactjs": "^1.2.8",
+    "animatePaper.js": "paper-animate#>=0.9.0",
+    "interactjs": ">=1.2.8",
     "stats.js": "*"
+  },
+  "resolutions": {
+    "paper": "latest"
   }
 }
