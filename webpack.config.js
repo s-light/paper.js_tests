@@ -15,6 +15,7 @@ module.exports = function(env) {
             animation_complex: './js/animation_complex.js',
             animation_moveonpath: './js/animation_moveonpath.js',
             animation_simple: './js/animation_simple.js',
+            multitouch: './js/multitouch.js',
         },
         output: {
             filename: '[name].js',

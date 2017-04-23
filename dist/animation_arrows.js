@@ -1991,7 +1991,8 @@ class MultiAnimationSVG extends MultiAnimation {
 /* (ignored) */
 
 /***/ }),
-/* 15 */
+/* 15 */,
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2257,5 +2258,5 @@ window.addEventListener("load", function(event) {
 
 
 /***/ })
-],[15]);
+],[16]);
 //# sourceMappingURL=animation_arrows.js.map

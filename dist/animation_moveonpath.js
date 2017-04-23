@@ -1,4 +1,4 @@
-webpackJsonp([5],[
+webpackJsonp([6],[
 /* 0 */
 /***/ (function(module, exports) {
 
@@ -1538,7 +1538,8 @@ module.exports = Tween;
 /* 16 */,
 /* 17 */,
 /* 18 */,
-/* 19 */
+/* 19 */,
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1769,5 +1770,5 @@ window.addEventListener("load", function(event) {
 
 
 /***/ })
-],[19]);
+],[20]);
 //# sourceMappingURL=animation_moveonpath.js.map

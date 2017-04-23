@@ -1,4 +1,4 @@
-webpackJsonp([2],[
+webpackJsonp([4],[
 /* 0 */
 /***/ (function(module, exports) {
 
@@ -1519,464 +1519,7 @@ Tween.prototype.run = function(percent) {
 module.exports = Tween;
 
 /***/ }),
-/* 10 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_paper__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_paper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_paper__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_paper_animate__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_paper_animate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_paper_animate__);
-// animation_multi
-
-
-
-
-
-
-
-class MultiAnimation {
-    constructor({ group, animationsConfig, loop=false, complete } = {}) {
-        console.log("create MultiAnimation");
-        this._ready = false;
-        this._active = false;
-
-        this._group = new __WEBPACK_IMPORTED_MODULE_0_paper___default.a.Group();
-        this._animationsElementsSet = false;
-        this._animationsElements = new Map();
-        this._animationsConfigSet = false;
-        this._animationsConfig = new Map();
-
-
-        if (group) {
-            this.group = group;
-        }
-        if (animationsConfig) {
-            this.animationsConfig = animationsConfig;
-        }
-        if (group && animationsConfig) {
-            this.mapConfigs2Elements();
-        }
-
-        // set loop to true to repeat forever
-        // set to integer to repeate n times
-        this.loop = loop;
-
-        this.complete = complete;
-    }
-
-    get active() {
-        return this._active;
-    }
-
-    get group() {
-        return this._group;
-    }
-    set group(group) {
-        // console.log("group", group);
-        if (group instanceof __WEBPACK_IMPORTED_MODULE_0_paper___default.a.Group) {
-            this._group = group;
-            this._parseGroupChilds();
-        } else {
-            console.error("error: given object is not an paper.Group type!");
-        }
-    }
-
-    get animationsConfig() {
-        return this._animationsConfig;
-    }
-    set animationsConfig(animationsConfig) {
-        // console.log("animationsConfig", animationsConfig);
-        if (animationsConfig instanceof Map) {
-            this._animationsConfig = animationsConfig;
-            this._animationsConfigSet = true;
-            this.mapConfigs2Elements();
-        } else {
-            console.error("error: given object is not an Map type!");
-        }
-    }
-
-    _parseGroupChilds() {
-        // console.log("_parseGroupChilds");
-        try {
-            // first clear Map.
-            this._animationsElements.clear();
-            // add new elements
-            for (const el of this.group.children) {
-                // console.log(" '" + el.name + "'");
-                if (!this._animationsElements.has(el.name)) {
-                    const el_data = {};
-                    el_data.playcount = 0;
-                    el_data.animationConfigs = {};
-                    el_data.done = true;
-                    el_data.element = el;
-                    this._animationsElements.set(el.name, el_data);
-                } else {
-                    console.error(
-                        "element '" + el.name +
-                        "' allready in list. please make sure every id/name is unique."
-                    );
-                }
-            }
-            console.log(
-                "Group contains the following animatable elements: [" +
-                [...(this._animationsElements.keys())].join(", ") +
-                "]"
-            );
-            this._animationsElementsSet = true;
-        } catch (e) {
-            console.error("parsing of group childs failed!\n", e);
-        }
-    }
-
-    mapConfigs2Elements() {
-        // we need to map the _animations configurations to the elements:
-        for (const [elName, el_data] of this._animationsElements.entries()) {
-            // console.log("elName", elName, "el", el);
-            if (this._animationsConfig.has(elName)) {
-                el_data.animationConfigs = this._animationsConfig.get(elName);
-            } else {
-                el_data.animationConfigs = null;
-                console.info("missing animation configuration for element '" +
-                    elName +
-                    "'. this Element will not animate."
-                );
-            }
-        }
-
-        // now all preparations are done.
-        this._ready = true;
-    }
-
-    toggle() {
-        // start animation
-        if (this._active) {
-            this.end();
-        } else {
-            this.start();
-        }
-    }
-
-    singleshot(options) {
-        // TODO: handle complete callback more user-friendly
-        // currently if you do not specify a an options object the currently set
-        // function will be used.
-        // make it possible to override this temporarily.
-
-        // start animation one time
-        if (!this._active) {
-            this.start(options);
-            this._active = false;
-        }
-    }
-
-    start(options) {
-        if (options) {
-            if (options.complete) {
-                this.complete = options.complete;
-            }
-        }
-        // start animation
-        this._active = true;
-        for (const [elName, el_data] of this._animationsElements.entries()) {
-            el_data.playcount = 0;
-            this._animateEl(elName);
-        }
-    }
-
-    end() {
-        // end animation (if loop is active run current animation till end)
-        this._active = false;
-    }
-
-    stop(goToEnd=true) {
-        // immediately stop animation
-        this._active = false;
-        for (const [elName, el_data] of this._animationsElements.entries()) {
-            __WEBPACK_IMPORTED_MODULE_1_paper_animate___default.a.stop(el_data.element, goToEnd);
-        }
-    }
-
-    _animateEl(elName) {
-        const el_data = this._animationsElements.get(elName);
-        const animationConfigs = el_data.animationConfigs;
-        if (animationConfigs) {
-            // console.log("animationConfigs", animationConfigs);
-            // _animationConfigs must be an array.
-            this._elAnimationConfigAddComplete(elName, animationConfigs);
-
-            el_data.done = false;
-            // start animation
-            // el.animate(animationConfigs);
-            // use animatePaper module directly.
-            // with the current ES6 style Modules / Imports aniamtePaper can't extend the paper items.
-            __WEBPACK_IMPORTED_MODULE_1_paper_animate___default.a.animate(el_data.element, animationConfigs);
-        }
-    }
-
-    _elAnimationConfigAddComplete(elName, animationConfigs) {
-        // console.log("animationConfigs", animationConfigs);
-
-        // check if last element is has ma_fake_propertie
-        const last_config = animationConfigs[animationConfigs.length - 1];
-        if (last_config.properties) {
-            const prop = last_config.properties;
-            if (prop.ma_fake_propertie_for_complete_step === undefined) {
-                const complete_step = {
-                    properties: {
-                        ma_fake_propertie_for_complete_step: 1,
-                    },
-                    settings: {
-                        duration: 1,
-                        complete: () => this._complete(elName),
-                    }
-                };
-                animationConfigs.push(complete_step);
-            }
-        }
-
-    }
-
-    _complete(elName) {
-        // console.log("complete", elName);
-        const el_data = this._animationsElements.get(elName);
-        if (el_data) {
-            // console.log("el", el);
-            // we add 1 to playcount if the animation completed.
-            el_data.playcount += 1;
-
-            // console.log("_complete on " + elName + " called.", "this._active", this._active);
-            // check if animation is active
-            if (this._active) {
-                // console.log("this.loop", this.loop);
-                if (typeof this.loop === "number") {
-                    // console.log("loop n times - check playcount");
-                    if (el_data.playcount < this.loop) {
-                        // console.log("--> restart");
-                        // restart animation
-                        this._animateEl(elName);
-                    } else {
-                        // console.log("--> playcount reached");
-                        this._active = false;
-                        el_data.done = true;
-                    }
-                } else if (typeof this.loop === "boolean") {
-                    // console.log("loop inifinity - check state");
-                    if (this.loop) {
-                        // console.log("--> loop is active");
-                        // infinity loop
-                        this._animateEl(elName);
-                    } else {
-                        // console.log("--> loop is off");
-                        this._active = false;
-                        el_data.done = true;
-                    }
-                } else {
-                    // console.log("--> no known loop value = end");
-                    this._active = false;
-                    el_data.done = true;
-                }
-            } else {
-                el_data.done = true;
-            }
-        }
-        this._checkAllForComplete();
-    }
-
-    _checkAllForComplete() {
-        // console.log("_checkAllForComplete");
-        let all_complete = true;
-        for (const [elName, el_data] of this._animationsElements.entries()) {
-            // this checks if the element is animatable
-            const animationConfigs = el_data.animationConfigs;
-            if (animationConfigs) {
-                // console.log(elName, el);
-                // console.log(elName, el_data.done);
-                // console.log(
-                //     el,
-                //     el_data._animatePaperAnims
-                // );
-                // check if this el animations are not completed.
-                if (el_data.done === false) {
-                    all_complete = false;
-                }
-            }
-        }
-        if (all_complete) {
-            // console.log("all complete - run 'complete' callback.");
-            if (typeof this.complete === 'function') {
-                this.complete();
-            } else {
-                // console.log("this.complete", this.complete);
-            }
-        }
-
-    }
-
-}
-/* harmony export (immutable) */ __webpack_exports__["b"] = MultiAnimation;
-
-
-
-class MultiAnimationSVG extends MultiAnimation {
-    constructor(
-        {
-            filenameSVG,
-            filenameConfig,
-            animationsConfig,
-            loop=false
-        } = {}
-    ) {
-        console.log("create MultiAnimationSVG");
-
-        super({
-            animationsConfig: animationsConfig,
-            loop:loop
-        });
-
-        this.filenameSVG = filenameSVG;
-        this.filenameConfig = filenameConfig;
-
-        this.groupSVG = new __WEBPACK_IMPORTED_MODULE_0_paper___default.a.Group();
-
-        if (this.filenameSVG) {
-            this.loadSVG(this.filenameSVG);
-        }
-        // this is now handled insind of loadSVG
-        // if (this._animationsConfig === undefined) {
-        //     this.loadConfig();
-        // } else {
-        //     this._ready = true;
-        // }
-    }
-
-    loadSVG(filename) {
-        // console.log("loadSVG");
-        this.filenameSVG = filename;
-        this.groupSVG.importSVG(
-            this.filenameSVG,
-            {
-                expandShapes: true,
-                insert: true,
-                // onLoad: (item) => onSVGload(item),
-                onLoad: (item) => {
-                    // console.log("svg loaded", item.name);
-                    // console.log("item", item);
-                    // console.log("get path", item.children.layer1.children.myloop);
-                    // in inkscape you have to name one layer 'animation'
-                    // we look for this child!
-                    const animation_layer = item.children.animation;
-                    if (animation_layer) {
-                        // console.log("animation_layer", animation_layer);
-                        // first clear list
-                        // console.log("this", this);
-                        // console.log("animation_layer", animation_layer);
-                        // console.log("animation_layer.children", animation_layer.children);
-                        // console.log("this._group", this._group);
-
-                        this._group.removeChildren();
-                        // with this parsing we link the children from of the
-                        // svg 'animation' layer to our internal simple _group
-                        // for (const el of animation_layer.children) {
-                        //     console.log(" '" + el.name + "'");
-                        //     // add to internal _group
-                        //     // this._group.addChild(el);
-                        // }
-                        this._group.addChildren(animation_layer.children);
-                        // console.log("this._group", this._group);
-                        this._parseGroupChilds();
-
-                        if (this._animationsConfigSet) {
-                            // update mapping
-                            this.mapConfigs2Elements();
-                            this._ready = true;
-                        } else {
-                            this.loadConfig();
-                        }
-                        // console.log("this._animationsElements", this._animationsElements);
-                        // console.log("this._animationsElements array", [...this._animationsElements]);
-                        // console.log("this._animationsElements json", JSON.stringify([...this._animationsElements]));
-                    } else {
-                        console.error(
-                            "Parsing of SVG-File Failed!\n" +
-                            "no layer 'animation' found.\n" +
-                            "please make sure that one layer in hase the id 'animation' " +
-                            "and move needed objects to this.\n" +
-                            "in inkscape you can do this in the XML editor (Ctrl+Shift+X)"
-                        );
-                    }
-                },
-                onError: (message) => {
-                    console.error(message);
-                }
-            }
-        );
-    }
-
-    loadConfig(filename=undefined) {
-        // format of JSON file:
-        // Map compatible
-        // [ [ "el1", {} ], [ "el2", {} ], [ "el3", {} ] ]
-        // console.log("loadConfig");
-        if (filename) {
-            this.filenameConfig = filename;
-        } else {
-            this.filenameConfig = this.filenameSVG.replace(/\.svg/i, ".json");
-        }
-
-        // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
-        const load_httpRequest = new XMLHttpRequest();
-        // load_httpRequest.onreadystatechange  = () => {
-        load_httpRequest.addEventListener("load", (event) => {
-            try {
-                if (event.target.status === 200) {
-                    // console.log("event.target.response", event.target.response);
-                    let respJSON;
-                    try {
-                        respJSON = JSON.parse(event.target.response);
-                        // console.log("respJSON", respJSON);
-                    } catch (e) {
-                        console.error("Error while parsing JSON:", e);
-                    }
-                    let respMap;
-                    try {
-                        respMap = new Map(respJSON);
-                        // console.log("this._animationsConfig", this._animationsConfig);
-                    } catch (e) {
-                        console.error("Error while converting response JSON to Map:", e);
-                    }
-                    this._animationsConfig = respMap;
-                    console.log(
-                        "Successfully loaded animations config from '" +
-                        this.filenameConfig + "' :",
-                        this._animationsConfig
-                    );
-
-                    this.mapConfigs2Elements();
-
-                } else {
-                    console.error('There was a problem with the request.');
-                }
-            } catch( e ) {
-                console.error('Caught Exception:', e);
-            }
-        });
-        // hardcore no - cache
-        // load_httpRequest.open(
-        //     'GET',
-        //     this.filenameConfig + "?" + (new Date()).getTime()
-        // );
-        load_httpRequest.open('GET', this.filenameConfig);
-        // Cache-Control: no-cache
-        load_httpRequest.setRequestHeader('Cache-Control', 'no-cache');
-        load_httpRequest.send();
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = MultiAnimationSVG;
-
-
-
-/***/ }),
+/* 10 */,
 /* 11 */,
 /* 12 */,
 /* 13 */
@@ -1993,7 +1536,12 @@ class MultiAnimationSVG extends MultiAnimation {
 /***/ }),
 /* 15 */,
 /* 16 */,
-/* 17 */
+/* 17 */,
+/* 18 */,
+/* 19 */,
+/* 20 */,
+/* 21 */,
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2003,7 +1551,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_paper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_paper__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_paper_animate__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_paper_animate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_paper_animate__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__animation_multi__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_interactjs__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_interactjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_interactjs__);
+// javascript!!!
+// goal: extend with interactive.js multitouch gestures.
+
+
 
 
 
@@ -2018,6 +1571,9 @@ class MainApp {
         this.canvas_el = canvas_el;
 
         this._initPaperJS();
+
+        this._initInteract();
+        // document.addEventListener("keypress", (event) => this.handleKeyPress(event));
     }
 
     _initPaperJS() {
@@ -2027,14 +1583,14 @@ class MainApp {
         // console.log("this.paperscope", this.paperscope);
 
         // set applyMatrix=false --> this means matrix can be read back...
-        // this.paperscope.settings.applyMatrix = false;
+        this.paperscope.settings.applyMatrix = false;
         // set this scope.project active:
         // all newly created paper Objects go into this project.
         this.paperscope.project.activate();
 
         this.paperscope.view.draw();
 
-        this._loadCircleTest();
+        this._drawThings();
 
         this.paperscope.view.onFrame = (event) => {
             this._onFrame(event);
@@ -2042,121 +1598,230 @@ class MainApp {
     }
 
     _onFrame(event) {
-        const offset = Math.sin(event.count / 30) * 75;
-        this.group_dots.position.x = this.group_dots_mycenter.x + offset;
-        // force recalculating of fillColor/gradient
-        //group_dotsContainer.fillColor = group_dots_color;
-        this.group_dots.strokeColor = this.group_dots_color;
+        // nothing to do here.
     }
 
-    // tests
-
-    _loadCircleTest() {
-
-        this.group_dots_mycenter = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Point([500, 300]);
-
-        var background = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Star({
-            center: this.group_dots_mycenter,
-            points: 14,
-            radius1: 150,
-            radius2: 430,
-            strokeColor: 'blue',
-            strokeWidth: 14,
-        });
-
-        var circle_0 = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Circle({
-            center: [100, 300],
-            radius: 50,
-            fillColor: 'orange',
-            strokeWidth: 14,
-        });
-
-        var circle_1 = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Circle({
-            center: [300, 300],
-            radius: 50,
-            fillColor: 'orange',
-            strokeWidth: 14,
-        });
-
-        var circle_2 = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Circle({
-            center: [500, 300],
-            radius: 50,
-            fillColor: 'orange',
-            strokeWidth: 14,
-        });
-
-        var circle_3 = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Circle({
-            center: [700, 300],
-            radius: 50,
-            fillColor: 'orange',
-            strokeWidth: 14,
-        });
-
-        var circle_4 = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Circle({
-            center: [900, 300],
-            radius: 50,
-            fillColor: 'orange',
-            strokeWidth: 14,
-        });
 
 
-        this.group_dots = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Group([
-            circle_0,
-            circle_1,
-            circle_2,
-            circle_3,
-            circle_4,
-        ]);
-
-
-
-        var group_dots_leftCenter = this.group_dots.localToGlobal(
-            this.group_dots.bounds.leftCenter
-        );
-
-        var group_dots_rightCenter = this.group_dots.localToGlobal(
-            this.group_dots.bounds.rightCenter
-        );
-
-        console.log("group_dots_leftCenter", group_dots_leftCenter);
-        console.log("group_dots_rightCenter", group_dots_rightCenter);
-
-        var container_helper = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Rectangle({
-            topLeft: [50, 100],
-            bottomRight: [950, 200],
-            fillColor: [0.4, 0, 1.0, 0.5],
-            strokeWidth: 14,
-        });
-
-        //console.log("group_dots", group_dots.bounds);
-        //console.log("group_dotsContainer", group_dotsContainer.bounds);
-        //console.log("group_dotsContainer_leftCenter", group_dotsContainer_leftCenter);
-        //console.log("group_dotsContainer_rightCenter", group_dotsContainer_rightCenter);
-
-        var myGradientStops = {
-                stops: [
-                    [new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(1, 0, 0, 0), 0.0],
-                    [new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(1, 0, 0, 0.1), 0.05],
-                    [new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(1, 0, 0, 1), 0.15],
-                    [new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(1, 1, 0, 1), 0.4],
-                    [new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(0, 1, 0, 1), 0.85],
-                    [new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(0, 1, 0, 0.1), 0.95],
-                    [new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(0, 1, 0, 0), 1.0],
-                ]
-        };
-
-
-        this.group_dots_color = {
-            gradient: myGradientStops,
-            origin: group_dots_leftCenter,
-            destination: group_dots_rightCenter,
-        };
-
-        container_helper.strokeColor = this.group_dots_color;
-        this.group_dots.strokeColor = this.group_dots_color;
+    _drawThings() {
+        // make some objects
+        this.obj_list = [
+            __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Rectangle({
+                point: [20, 20],
+                size: [150, 500],
+                strokeColor: 'lime',
+                fillColor: new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(1,1,1, 0.2),
+                name:"rect1"
+            }),
+            __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Rectangle({
+                point: [100, 20],
+                size: [150, 150],
+                strokeColor: 'red',
+                fillColor: new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(1,1,1, 0.2),
+                name:"rect2"
+            }),
+            // paper.Path.Circle({
+            //     center: paper.view.center,
+            //     radius: 170,
+            //     strokeColor: 'blue',
+            //     fillColor: new paper.Color(1,1,1, 0.2),
+            //     name:"circle1"
+            // }),
+            __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Circle({
+                center: __WEBPACK_IMPORTED_MODULE_1_paper___default.a.view.center.subtract(new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Point(300, 0)),
+                radius: [200, 80],
+                strokeColor: 'orange',
+                fillColor: new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(1,1,1, 0.2),
+                name:"circle2"
+            }),
+        ];
     }
+
+
+    // with this we check / get the item we want to move..
+    getItemAtPoint(x, y) {
+        // console.log("getItemAtPoint!");
+        // console.log("event", event);
+        // console.log("event.point", event.point);
+        // console.log("x", x, "y", y);
+        // this is a finer way to test:
+        //const event_point = event.point;
+        const event_point = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Point(x, y);
+        const hit_result = __WEBPACK_IMPORTED_MODULE_1_paper___default.a.project.hitTest(
+            event_point,
+            {
+                fill: true,
+                stroke: true,
+                segments: true,
+                tolerance: 5
+            }
+        );
+        let hit_item = null;
+        if (hit_result) {
+            hit_item = hit_result.item;
+        }
+        // console.log("hit_item:", hit_item);
+        return hit_item;
+    }
+
+
+    onDragHandler(event) {
+        // console.group("onDragHandler:");
+
+        // console.log("event.target", event.target);
+        // console.log("event.target.name", event.target.name);
+        // console.log("event.dx", event.dx, "event.dy", event.dy);
+
+        // create new paper.js point
+        const event_delta = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Point(event.dx, event.dy);
+        // console.log("event_delta", event_delta);
+        event.target.translate(event_delta);
+
+        console.groupEnd();
+    }
+
+    onRotateHandler(event) {
+        console.log("onRotateHandler!");
+        // console.log("event", event);
+
+        const event_delta = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Point(event.dx, event.dy);
+        event.target.translate(event_delta);
+
+        const event_deltaAngle = event.da;
+        // console.log("event_deltaAngle", event_deltaAngle);
+        event.target.rotate(event_deltaAngle);
+
+    }
+
+    onUpHandler(event) {
+        console.log("onUpHandler:");
+        console.log("event.target.name", event.target.name);
+        // if (event.target.data.drag_active) {
+        //     console.log("event", event);
+        //     // event.target.data.drag_active = false;
+        // }
+    }
+
+
+    log_event(event) {
+      console.log(event.type, event.pageX, event.pageY, event.dx, event.dy);
+    }
+
+
+    _initInteract() {
+            // interact(myCanvas_element)
+            //     .on('click', listener)
+            //     .on('tab', listener)
+            //     .on('doubletap', listener)
+            //     .on('hold', listener)
+            //     .on('dragstart', listener)
+            //     .on('dragmove', listener)
+            //     .on('dragend', listener)
+            //     .on(['resizemove', 'resizeend'], listener)
+            //     .on({
+            //         gesturestart: listener,
+            //         gesturemove: listener,
+            //         gestureend: listener
+            //     })
+            //     ;
+
+            __WEBPACK_IMPORTED_MODULE_3_interactjs___default()(this.canvas_el)
+            .draggable({
+                enabled: true,
+                manualStart: true,
+                // enable inertial throwing
+                // inertia: true,
+                inertia: false,
+                maxPerElement: 10,
+                // onstart: onDownHandler,
+                // call this function on every dragmove event
+                onmove: this.onDragHandler,
+                // call this function on every dragend event
+                onend: this.onUpHandler
+            })
+            .gesturable({
+                enabled: true,
+                manualStart: true,
+                maxPerElement: 10,
+                // onstart: onDownHandler,
+                // call this function on every gesturemove event
+                onmove: this.onRotateHandler,
+                // call this function on every gestureend event
+                // onend: this.onUpHandler
+            })
+            .on('down', (event)=> {
+                console.group("down handler");
+                // console.log("event", event);
+                // console.log("event.interactable", event.interactable);
+                console.log("event.interaction.interacting()", event.interaction.interacting());
+
+                const interaction = event.interaction;
+                const hit_item = this.getItemAtPoint(event.clientX, event.clientY);
+                // const hit_item = this.getItemAtPoint(event.x0, event.y0);
+                if (hit_item) {
+                    console.log("hit_item.name", hit_item.name);
+                    // console.log("event.currentTarget", event.currentTarget);
+                    // console.log("interaction.interacting()", interaction.interacting());
+
+                    // https://github.com/taye/interact.js/issues/480#issuecomment-275708556
+                    if (interaction.interacting()) {
+
+                        // stop dragging
+                        interaction.end();
+
+                        // start gesture
+                        interaction.start(
+                            { name: 'gesture' },
+                            event.interactable,
+                            // event.currentTarget
+                            hit_item
+                         );
+                    } else {
+                        // first pointer goes down, start a drag
+                        interaction.start(
+                            { name: 'drag' },
+                            event.interactable,
+                            // event.currentTarget
+                            hit_item
+                         );
+                    }
+                }
+
+                console.groupEnd();
+            })
+            .rectChecker(function (element) {
+                // https://hacks.mozilla.org/2014/11/interact-js-for-drag-and-drop-resizing-and-multi-touch-gestures/
+                // console.log("rectChecker");
+                // console.log("element", element);
+                // console.log("element instanceof paper.Path", element instanceof paper.Path);
+                // return a suitable object for interact.js
+                let result_rect = null;
+                // check for paper js thing
+                if (element.bounds) {
+                    result_rect = {
+                      left  : element.bounds.left,
+                      top   : element.bounds.top,
+                      right : element.bounds.right,
+                      bottom: element.bounds.bottom
+                    };
+                } else {
+                    // echeck for html element
+                    if (element.getClientRects) {
+                        result_rect = element.getClientRects()[0];
+                    }
+                }
+                return result_rect;
+            })
+            ;
+
+    }
+
 
 }
+
+
+
+
 
 
 // https://developer.mozilla.org/en-US/docs/Web/Events/DOMContentLoaded
@@ -2176,5 +1841,5 @@ window.addEventListener("load", function(event) {
 
 
 /***/ })
-],[17]);
-//# sourceMappingURL=animation_circles.js.map
+],[22]);
+//# sourceMappingURL=multitouch.js.map

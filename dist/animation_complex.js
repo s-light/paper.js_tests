@@ -1994,7 +1994,8 @@ class MultiAnimationSVG extends MultiAnimation {
 /* 15 */,
 /* 16 */,
 /* 17 */,
-/* 18 */
+/* 18 */,
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2104,5 +2105,5 @@ window.addEventListener("load", function(event) {
 
 
 /***/ })
-],[18]);
+],[19]);
 //# sourceMappingURL=animation_complex.js.map
