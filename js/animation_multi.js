@@ -1,13 +1,12 @@
 // animation_multi
 
-// import paper from 'paper';
-// import animatePaper from 'paper-animate';
+import paper from 'paper';
+import animatePaper from 'paper-animate';
 
 
 
 
-// export class MultiAnimation {
-class MultiAnimation {
+export class MultiAnimation {
     constructor({ group, animationsConfig, loop=false, complete } = {}) {
         console.log("create MultiAnimation");
         this._ready = false;
@@ -37,6 +36,9 @@ class MultiAnimation {
         this.complete = complete;
     }
 
+    get active() {
+        return this._active;
+    }
 
     get group() {
         return this._group;
@@ -158,11 +160,11 @@ class MultiAnimation {
         this._active = false;
     }
 
-    stop(goToEnd=false) {
+    stop(goToEnd=true) {
         // immediately stop animation
         this._active = false;
-        for (const el of this._animationsElements) {
-            el.stop(goToEnd);
+        for (const [elName, el_data] of this._animationsElements.entries()) {
+            animatePaper.stop(el_data.element, goToEnd);
         }
     }
 
@@ -285,8 +287,7 @@ class MultiAnimation {
 }
 
 
-// export class MultiAnimationSVG extends MultiAnimation {
-class MultiAnimationSVG extends MultiAnimation {
+export class MultiAnimationSVG extends MultiAnimation {
     constructor(
         {
             filenameSVG,

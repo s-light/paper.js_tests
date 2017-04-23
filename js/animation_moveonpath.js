@@ -1,4 +1,10 @@
 
+import ShowFPS from './showfps';
+
+import paper from 'paper';
+import animatePaper from 'paper-animate';
+
+
 class MainApp {
     constructor(canvas_el) {
         this.canvas_el = canvas_el;
@@ -6,26 +12,6 @@ class MainApp {
         this._initPaperJS();
         this._addCustomAnimations();
         this._initAnimations();
-
-        // var square = new paper.Path.Rectangle(new paper.Point(175, 175), new paper.Size(150,150));
-        // square.strokeColor = 'green';
-        // square.animate({
-        //     properties: {
-        //         position: {
-        //             x: "+500",
-        //             // x: 500,
-        //             y: 150     // absolute position. At the end, `y` will be : 150
-        //         },
-        //         strokeColor: {
-        //             hue: "+100",
-        //             brightness: "+0.4"
-        //         }
-        //     },
-        //     settings: {
-        //         duration:1500,
-        //         easing:"linear"
-        //     }
-        // });
 
     }
 
@@ -71,9 +57,8 @@ class MainApp {
         // this.path0.strokeColor = 'yellow';
         // this.path0.name = 'path0';
         // // console.log(this.path0 instanceof paper.Path);
-
-        const tempImporter = new paper.Group();
-        tempImporter.importSVG(
+        this.graphic_starloop = new paper.Group();
+        this.graphic_starloop.importSVG(
             "./svg/starloop.svg",
             {
                 expandShapes: true,
@@ -85,17 +70,17 @@ class MainApp {
                     // console.log("get path", item.children.layer1.children.myloop);
                     // this.path0.removeSegments();
                     // this.path0 = new paper.Path();
+                    item.clipped = false;
                     this.path0 = item.children.layer1.children.myloop;
                     this.path0.strokeColor = 'yellow';
                     this.path0.name = 'path0';
-                    this.path0.position = new paper.Point(300, 300);
+                    this.path0.position = new paper.Point(500, 300);
                     console.log("apply matrix to path:", this.path0.matrix.apply());
                 },
                 onError: (message) => {console.error(message);}
             }
         );
-
-
+        // this.graphic_starloop.position = [500, 100];
 
         this.paperscope.view.draw();
     }
@@ -197,7 +182,7 @@ class MainApp {
         // console.log("startMoveOnPath");
         // console.log("this", this);
         // console.log("event", event);
-        this.rect0.animate({
+        animatePaper.animate(this.rect0, {
             properties: {
                 moveOnPath: 1
             },

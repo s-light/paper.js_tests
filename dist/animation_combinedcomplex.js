@@ -1,4 +1,4 @@
-webpackJsonp([4],[
+webpackJsonp([1],[
 /* 0 */
 /***/ (function(module, exports) {
 
@@ -1519,7 +1519,464 @@ Tween.prototype.run = function(percent) {
 module.exports = Tween;
 
 /***/ }),
-/* 10 */,
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_paper__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_paper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_paper__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_paper_animate__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_paper_animate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_paper_animate__);
+// animation_multi
+
+
+
+
+
+
+
+class MultiAnimation {
+    constructor({ group, animationsConfig, loop=false, complete } = {}) {
+        console.log("create MultiAnimation");
+        this._ready = false;
+        this._active = false;
+
+        this._group = new __WEBPACK_IMPORTED_MODULE_0_paper___default.a.Group();
+        this._animationsElementsSet = false;
+        this._animationsElements = new Map();
+        this._animationsConfigSet = false;
+        this._animationsConfig = new Map();
+
+
+        if (group) {
+            this.group = group;
+        }
+        if (animationsConfig) {
+            this.animationsConfig = animationsConfig;
+        }
+        if (group && animationsConfig) {
+            this.mapConfigs2Elements();
+        }
+
+        // set loop to true to repeat forever
+        // set to integer to repeate n times
+        this.loop = loop;
+
+        this.complete = complete;
+    }
+
+    get active() {
+        return this._active;
+    }
+
+    get group() {
+        return this._group;
+    }
+    set group(group) {
+        // console.log("group", group);
+        if (group instanceof __WEBPACK_IMPORTED_MODULE_0_paper___default.a.Group) {
+            this._group = group;
+            this._parseGroupChilds();
+        } else {
+            console.error("error: given object is not an paper.Group type!");
+        }
+    }
+
+    get animationsConfig() {
+        return this._animationsConfig;
+    }
+    set animationsConfig(animationsConfig) {
+        // console.log("animationsConfig", animationsConfig);
+        if (animationsConfig instanceof Map) {
+            this._animationsConfig = animationsConfig;
+            this._animationsConfigSet = true;
+            this.mapConfigs2Elements();
+        } else {
+            console.error("error: given object is not an Map type!");
+        }
+    }
+
+    _parseGroupChilds() {
+        // console.log("_parseGroupChilds");
+        try {
+            // first clear Map.
+            this._animationsElements.clear();
+            // add new elements
+            for (const el of this.group.children) {
+                // console.log(" '" + el.name + "'");
+                if (!this._animationsElements.has(el.name)) {
+                    const el_data = {};
+                    el_data.playcount = 0;
+                    el_data.animationConfigs = {};
+                    el_data.done = true;
+                    el_data.element = el;
+                    this._animationsElements.set(el.name, el_data);
+                } else {
+                    console.error(
+                        "element '" + el.name +
+                        "' allready in list. please make sure every id/name is unique."
+                    );
+                }
+            }
+            console.log(
+                "Group contains the following animatable elements: [" +
+                [...(this._animationsElements.keys())].join(", ") +
+                "]"
+            );
+            this._animationsElementsSet = true;
+        } catch (e) {
+            console.error("parsing of group childs failed!\n", e);
+        }
+    }
+
+    mapConfigs2Elements() {
+        // we need to map the _animations configurations to the elements:
+        for (const [elName, el_data] of this._animationsElements.entries()) {
+            // console.log("elName", elName, "el", el);
+            if (this._animationsConfig.has(elName)) {
+                el_data.animationConfigs = this._animationsConfig.get(elName);
+            } else {
+                el_data.animationConfigs = null;
+                console.info("missing animation configuration for element '" +
+                    elName +
+                    "'. this Element will not animate."
+                );
+            }
+        }
+
+        // now all preparations are done.
+        this._ready = true;
+    }
+
+    toggle() {
+        // start animation
+        if (this._active) {
+            this.end();
+        } else {
+            this.start();
+        }
+    }
+
+    singleshot(options) {
+        // TODO: handle complete callback more user-friendly
+        // currently if you do not specify a an options object the currently set
+        // function will be used.
+        // make it possible to override this temporarily.
+
+        // start animation one time
+        if (!this._active) {
+            this.start(options);
+            this._active = false;
+        }
+    }
+
+    start(options) {
+        if (options) {
+            if (options.complete) {
+                this.complete = options.complete;
+            }
+        }
+        // start animation
+        this._active = true;
+        for (const [elName, el_data] of this._animationsElements.entries()) {
+            el_data.playcount = 0;
+            this._animateEl(elName);
+        }
+    }
+
+    end() {
+        // end animation (if loop is active run current animation till end)
+        this._active = false;
+    }
+
+    stop(goToEnd=true) {
+        // immediately stop animation
+        this._active = false;
+        for (const [elName, el_data] of this._animationsElements.entries()) {
+            __WEBPACK_IMPORTED_MODULE_1_paper_animate___default.a.stop(el_data.element, goToEnd);
+        }
+    }
+
+    _animateEl(elName) {
+        const el_data = this._animationsElements.get(elName);
+        const animationConfigs = el_data.animationConfigs;
+        if (animationConfigs) {
+            // console.log("animationConfigs", animationConfigs);
+            // _animationConfigs must be an array.
+            this._elAnimationConfigAddComplete(elName, animationConfigs);
+
+            el_data.done = false;
+            // start animation
+            // el.animate(animationConfigs);
+            // use animatePaper module directly.
+            // with the current ES6 style Modules / Imports aniamtePaper can't extend the paper items.
+            __WEBPACK_IMPORTED_MODULE_1_paper_animate___default.a.animate(el_data.element, animationConfigs);
+        }
+    }
+
+    _elAnimationConfigAddComplete(elName, animationConfigs) {
+        // console.log("animationConfigs", animationConfigs);
+
+        // check if last element is has ma_fake_propertie
+        const last_config = animationConfigs[animationConfigs.length - 1];
+        if (last_config.properties) {
+            const prop = last_config.properties;
+            if (prop.ma_fake_propertie_for_complete_step === undefined) {
+                const complete_step = {
+                    properties: {
+                        ma_fake_propertie_for_complete_step: 1,
+                    },
+                    settings: {
+                        duration: 1,
+                        complete: () => this._complete(elName),
+                    }
+                };
+                animationConfigs.push(complete_step);
+            }
+        }
+
+    }
+
+    _complete(elName) {
+        // console.log("complete", elName);
+        const el_data = this._animationsElements.get(elName);
+        if (el_data) {
+            // console.log("el", el);
+            // we add 1 to playcount if the animation completed.
+            el_data.playcount += 1;
+
+            // console.log("_complete on " + elName + " called.", "this._active", this._active);
+            // check if animation is active
+            if (this._active) {
+                // console.log("this.loop", this.loop);
+                if (typeof this.loop === "number") {
+                    // console.log("loop n times - check playcount");
+                    if (el_data.playcount < this.loop) {
+                        // console.log("--> restart");
+                        // restart animation
+                        this._animateEl(elName);
+                    } else {
+                        // console.log("--> playcount reached");
+                        this._active = false;
+                        el_data.done = true;
+                    }
+                } else if (typeof this.loop === "boolean") {
+                    // console.log("loop inifinity - check state");
+                    if (this.loop) {
+                        // console.log("--> loop is active");
+                        // infinity loop
+                        this._animateEl(elName);
+                    } else {
+                        // console.log("--> loop is off");
+                        this._active = false;
+                        el_data.done = true;
+                    }
+                } else {
+                    // console.log("--> no known loop value = end");
+                    this._active = false;
+                    el_data.done = true;
+                }
+            } else {
+                el_data.done = true;
+            }
+        }
+        this._checkAllForComplete();
+    }
+
+    _checkAllForComplete() {
+        // console.log("_checkAllForComplete");
+        let all_complete = true;
+        for (const [elName, el_data] of this._animationsElements.entries()) {
+            // this checks if the element is animatable
+            const animationConfigs = el_data.animationConfigs;
+            if (animationConfigs) {
+                // console.log(elName, el);
+                // console.log(elName, el_data.done);
+                // console.log(
+                //     el,
+                //     el_data._animatePaperAnims
+                // );
+                // check if this el animations are not completed.
+                if (el_data.done === false) {
+                    all_complete = false;
+                }
+            }
+        }
+        if (all_complete) {
+            // console.log("all complete - run 'complete' callback.");
+            if (typeof this.complete === 'function') {
+                this.complete();
+            } else {
+                // console.log("this.complete", this.complete);
+            }
+        }
+
+    }
+
+}
+/* harmony export (immutable) */ __webpack_exports__["b"] = MultiAnimation;
+
+
+
+class MultiAnimationSVG extends MultiAnimation {
+    constructor(
+        {
+            filenameSVG,
+            filenameConfig,
+            animationsConfig,
+            loop=false
+        } = {}
+    ) {
+        console.log("create MultiAnimationSVG");
+
+        super({
+            animationsConfig: animationsConfig,
+            loop:loop
+        });
+
+        this.filenameSVG = filenameSVG;
+        this.filenameConfig = filenameConfig;
+
+        this.groupSVG = new __WEBPACK_IMPORTED_MODULE_0_paper___default.a.Group();
+
+        if (this.filenameSVG) {
+            this.loadSVG(this.filenameSVG);
+        }
+        // this is now handled insind of loadSVG
+        // if (this._animationsConfig === undefined) {
+        //     this.loadConfig();
+        // } else {
+        //     this._ready = true;
+        // }
+    }
+
+    loadSVG(filename) {
+        // console.log("loadSVG");
+        this.filenameSVG = filename;
+        this.groupSVG.importSVG(
+            this.filenameSVG,
+            {
+                expandShapes: true,
+                insert: true,
+                // onLoad: (item) => onSVGload(item),
+                onLoad: (item) => {
+                    // console.log("svg loaded", item.name);
+                    // console.log("item", item);
+                    // console.log("get path", item.children.layer1.children.myloop);
+                    // in inkscape you have to name one layer 'animation'
+                    // we look for this child!
+                    const animation_layer = item.children.animation;
+                    if (animation_layer) {
+                        // console.log("animation_layer", animation_layer);
+                        // first clear list
+                        // console.log("this", this);
+                        // console.log("animation_layer", animation_layer);
+                        // console.log("animation_layer.children", animation_layer.children);
+                        // console.log("this._group", this._group);
+
+                        this._group.removeChildren();
+                        // with this parsing we link the children from of the
+                        // svg 'animation' layer to our internal simple _group
+                        // for (const el of animation_layer.children) {
+                        //     console.log(" '" + el.name + "'");
+                        //     // add to internal _group
+                        //     // this._group.addChild(el);
+                        // }
+                        this._group.addChildren(animation_layer.children);
+                        // console.log("this._group", this._group);
+                        this._parseGroupChilds();
+
+                        if (this._animationsConfigSet) {
+                            // update mapping
+                            this.mapConfigs2Elements();
+                            this._ready = true;
+                        } else {
+                            this.loadConfig();
+                        }
+                        // console.log("this._animationsElements", this._animationsElements);
+                        // console.log("this._animationsElements array", [...this._animationsElements]);
+                        // console.log("this._animationsElements json", JSON.stringify([...this._animationsElements]));
+                    } else {
+                        console.error(
+                            "Parsing of SVG-File Failed!\n" +
+                            "no layer 'animation' found.\n" +
+                            "please make sure that one layer in hase the id 'animation' " +
+                            "and move needed objects to this.\n" +
+                            "in inkscape you can do this in the XML editor (Ctrl+Shift+X)"
+                        );
+                    }
+                },
+                onError: (message) => {
+                    console.error(message);
+                }
+            }
+        );
+    }
+
+    loadConfig(filename=undefined) {
+        // format of JSON file:
+        // Map compatible
+        // [ [ "el1", {} ], [ "el2", {} ], [ "el3", {} ] ]
+        // console.log("loadConfig");
+        if (filename) {
+            this.filenameConfig = filename;
+        } else {
+            this.filenameConfig = this.filenameSVG.replace(/\.svg/i, ".json");
+        }
+
+        // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+        const load_httpRequest = new XMLHttpRequest();
+        // load_httpRequest.onreadystatechange  = () => {
+        load_httpRequest.addEventListener("load", (event) => {
+            try {
+                if (event.target.status === 200) {
+                    // console.log("event.target.response", event.target.response);
+                    let respJSON;
+                    try {
+                        respJSON = JSON.parse(event.target.response);
+                        // console.log("respJSON", respJSON);
+                    } catch (e) {
+                        console.error("Error while parsing JSON:", e);
+                    }
+                    let respMap;
+                    try {
+                        respMap = new Map(respJSON);
+                        // console.log("this._animationsConfig", this._animationsConfig);
+                    } catch (e) {
+                        console.error("Error while converting response JSON to Map:", e);
+                    }
+                    this._animationsConfig = respMap;
+                    console.log(
+                        "Successfully loaded animations config from '" +
+                        this.filenameConfig + "' :",
+                        this._animationsConfig
+                    );
+
+                    this.mapConfigs2Elements();
+
+                } else {
+                    console.error('There was a problem with the request.');
+                }
+            } catch( e ) {
+                console.error('Caught Exception:', e);
+            }
+        });
+        // hardcore no - cache
+        // load_httpRequest.open(
+        //     'GET',
+        //     this.filenameConfig + "?" + (new Date()).getTime()
+        // );
+        load_httpRequest.open('GET', this.filenameConfig);
+        // Cache-Control: no-cache
+        load_httpRequest.setRequestHeader('Cache-Control', 'no-cache');
+        load_httpRequest.send();
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = MultiAnimationSVG;
+
+
+
+/***/ }),
 /* 11 */,
 /* 12 */,
 /* 13 */
@@ -1536,10 +1993,7 @@ module.exports = Tween;
 /***/ }),
 /* 15 */,
 /* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */,
-/* 20 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1549,6 +2003,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_paper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_paper__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_paper_animate__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_paper_animate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_paper_animate__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__animation_multi__ = __webpack_require__(10);
+
 
 
 
@@ -1562,27 +2018,18 @@ class MainApp {
         this.canvas_el = canvas_el;
 
         this._initPaperJS();
-        this._initAnimations();
 
-        // var square = new paper.Path.Rectangle(new paper.Point(175, 175), new paper.Size(150,150));
-        // square.strokeColor = 'green';
-        // square.animate({
-        //     properties: {
-        //         position: {
-        //             x: "+500",
-        //             // x: 500,
-        //             y: 150     // absolute position. At the end, `y` will be : 150
-        //         },
-        //         strokeColor: {
-        //             hue: "+100",
-        //             brightness: "+0.4"
-        //         }
-        //     },
-        //     settings: {
-        //         duration:1500,
-        //         easing:"linear"
-        //     }
-        // });
+
+        this.compAni = new __WEBPACK_IMPORTED_MODULE_3__animation_multi__["a" /* MultiAnimationSVG */]({
+            // filenameSVG:"./svg/button_complex.svg"
+            filenameSVG:"./svg/button_simple.svg"
+            // filenameSVG:"./svg/Colibri__single_lineart.svg"
+        });
+        this.compAni.loop = true;
+        // this.compAni.group.position = paper.Point(400, 200);
+
+        this._addCustomAnimations();
+        this._initAnimations();
 
     }
 
@@ -1596,37 +2043,123 @@ class MainApp {
         // all newly created paper Objects go into this project.
         this.paperscope.project.activate();
 
-        this.rect0 = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Rectangle({
-            point: [0, 0],
-            size: [200, 150],
-            strokeColor: 'lime',
-            fillColor: new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(1,1,1, 0.2),
-            name:"rect0"
-        });
+        this._initPathToMoveOn();
+
 
         this.paperscope.view.draw();
     }
 
+    _initPathToMoveOn() {
+        // create some path to move on
+        // const center = new paper.Point(300, 300);
+        // const points = 5;
+        // const radius1 = 50;
+        // const radius2 = 200;
+        // this.path0 = new paper.Path.Star(center, points, radius1, radius2);
+        // // const rectangle = new paper.Rectangle(
+        // //     new paper.Point(200, 200),
+        // //     new paper.Size(550, 200)
+        // // );
+        // // this.path0 = new paper.Path.Ellipse(rectangle);
+        // this.path0.strokeColor = 'yellow';
+        // this.path0.name = 'path0';
+        // // console.log(this.path0 instanceof paper.Path);
+
+        // import path to move on..
+        this.graphic_starloop = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Group();
+        this.graphic_starloop.importSVG(
+            "./svg/starloop.svg",
+            {
+                expandShapes: true,
+                insert: true,
+                // onLoad: (item) => onSVGload(item),
+                onLoad: (item) => {
+                    console.log("this", this);
+                    console.log("svg loaded", item.name);
+                    // console.log("get path", item.children.layer1.children.myloop);
+                    // this.path0.removeSegments();
+                    // this.path0 = new paper.Path();
+                    item.clipped = false;
+                    this.path0 = item.children.layer1.children.myloop;
+                    this.path0.strokeColor = 'yellow';
+                    this.path0.name = 'path0';
+                    this.path0.position = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Point(500, 300);
+                    console.log("apply matrix to path:", this.path0.matrix.apply());
+                },
+                onError: (message) => {console.error(message);}
+            }
+        );
+        // this.graphic_starloop.position = [500, 100];
+
+    }
+
+    _addCustomAnimations() {
+        __WEBPACK_IMPORTED_MODULE_2_paper_animate___default.a.extendPropHooks({
+            "moveOnPath": {
+                get: function(tween) {
+                    if (!tween.item.data._animatePaperVals) {
+                        tween.item.data._animatePaperVals = {};
+                    }
+                    if (typeof tween.item.data._animatePaperVals.moveOnPath === "undefined") {
+                        tween.item.data._animatePaperVals.moveOnPath = 0;
+                    }
+                    var output = tween.item.data._animatePaperVals.moveOnPath;
+                    return output;
+                },
+                set: function(tween) {
+                    var curOffsetOnPath = tween.item.data._animatePaperVals.moveOnPath;
+                    // var trueOffsetOnPath = tween.now - curOffsetOnPath;
+                    tween.item.data._animatePaperVals.moveOnPath = tween.now;
+                    if (tween.A.settings.targetPath instanceof __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path) {
+                        // console.log("curOffsetOnPath", curOffsetOnPath);
+                        const pathOffset = tween.A.settings.targetPath.length * curOffsetOnPath / 1;
+                        // console.log("pathOffset", pathOffset);
+                        // console.log("tween.A.settings.targetPath", tween.A.settings.targetPath);
+                        // const curCurveLocation = tween.A.settings.targetPath.getLocationAt(pathOffset);
+                        const curPos = tween.A.settings.targetPath.getPointAt(pathOffset);
+                        const curRot = tween.A.settings.targetPath.getTangentAt(pathOffset).angle;
+                        tween.item.position = curPos;
+                        tween.item.rotation = curRot;
+                    } else {
+                        // do nothing.
+                    }
+                }
+            }
+        });
+
+
+        // animatePaper.fx.moveOnPathStart2End = function(target, path, loop) {
+        //     target.animate([
+        //         {
+        //             properties: {
+        //                 moveOnPath: 1
+        //             },
+        //             settings: {
+        //                 path: path,
+        //                 duration: 5000,
+        //                 easing: "linear",
+        //                 complete: function() {
+        //                     // Hack to fix start/stop issues
+        //                     target.data._animatePaperVals.moveOnPath = 0;
+        //                     if (!loop) return;
+        //                     ANIMATE.revolve(target, referencePoint, loop);
+        //                 }
+        //             }
+        //         }
+        //     ]);
+        // };
+
+
+    }
+
     _initAnimations() {
-        // this.canvas_el.addEventListener("click", (event) => {
-        //     this.moveToPosition(event);
+        // document.addEventListener("click", (event) => {
+        //     this.compAni.singleshot();
         // });
         document.addEventListener("click", (event) => this.moveToPosition(event));
         document.addEventListener("keypress", (event) => this.handleKeyPress(event));
-
-        this.breath_loop = false;
-
-        // this.rect0.onClick = function(event) {
-        //     console.log("this", this);
-        //     console.log("event", event);
-        //     // var event_delta = new paper.Point(event.dx, event.dy);
-        //     this.animate({
-        //
-        //     });
-        //
-        //
-        // };
-
+        // make sure the animation is run once to get a defined state of the objects.
+        this.compAni.singleshot();
     }
 
     handleKeyPress(event) {
@@ -1634,16 +2167,27 @@ class MainApp {
         switch (event.key) {
             case " ": {
                 // space bar pressed
-                this.toggleBreath();
+                this.compAni.toggle();
             } break;
-            case "p": {
-                this.moveToAbsoluteNegativePosition();
+            case "ArrowDown": {
+                // Do something for "down arrow" key press.
+            } break;
+            case "ArrowUp": {
+                // Do something for "up arrow" key press.
+            } break;
+            case "ArrowLeft": {
+                // Do something for "left arrow" key press.
+            } break;
+            case "ArrowRight": {
+                // Do something for "right arrow" key press.
             } break;
             case "Enter": {
                 // Do something for "enter" or "return" key press.
+                this.startMoveOnPath();
             } break;
             case "Escape":
                 // Do something for "esc" key press.
+                console.log("pos:", this.compAni.group.position);
             break;
             default:
                 return; // Quit when this doesn't handle the key event.
@@ -1655,17 +2199,32 @@ class MainApp {
         // console.log("event", event);
         // const position_new = new paper.Point(event.clientX, event.clientY);
 
-        // console.log("this.rect0.position", this.rect0.position);
+        // console.log("this.compAni.group.position", this.compAni.group.position);
         // console.log("position_new", position_new);
 
-        // this.rect0.position.x = event.clientX;
-        // this.rect0.position.y = event.clientY;
+        // this does not work.
+        // this.compAni.group.position = paper.Point(event.clientX, event.clientY);
+        // this does work:
+        // this.compAni.group.position.x = event.clientX;
+        // this.compAni.group.position.y = event.clientY;
         // this.paperscope.view.draw();
 
-        __WEBPACK_IMPORTED_MODULE_2_paper_animate___default.a.animate(this.rect0, {
+        // convert absolute position to relative
+        // this avoids a bug in older animatePaper.js:
+        // see report at https://github.com/Eartz/animatePaper.js/issues/8
+
+        const x_relative_number =  event.clientX - this.compAni.group.position.x;
+        let x_relative = String(x_relative_number);
+        if (x_relative_number >= 0) {
+            x_relative = "+" + x_relative;
+        }
+        // console.log("x_relative", x_relative);
+
+        __WEBPACK_IMPORTED_MODULE_2_paper_animate___default.a.animate(this.compAni.group, {
             properties: {
                 position: {
-                    x: event.clientX,
+                    // x: event.clientX,
+                    x: x_relative,
                     y: event.clientY,
                 }
             },
@@ -1676,77 +2235,24 @@ class MainApp {
         });
     }
 
-    toggleBreath() {
-        if (this.breath_loop) {
-            this.breath_loop = false;
-        } else {
-            this.breath_loop = true;
-            // start animation
-            this.breath();
-        }
-        console.log("breath_loop:", this.breath_loop);
-    }
-
-    breath() {
+    startMoveOnPath() {
+        // console.log("startMoveOnPath");
         // console.log("this", this);
         // console.log("event", event);
-
-        __WEBPACK_IMPORTED_MODULE_2_paper_animate___default.a.animate(this.rect0, [
-            {
-                properties: {
-                    scale: 1.2,
-                },
-                settings: {
-                    duration: 800,
-                    easing: "swing"
-                }
+        __WEBPACK_IMPORTED_MODULE_2_paper_animate___default.a.animate(this.compAni.group, {
+            properties: {
+                moveOnPath: 1
             },
-            {
-                properties: {
-                    scale: 1,
-                },
-                settings: {
-                    duration: 800,
-                    easing: "swing",
-                    complete: () => {
-                        console.log('complete !');
-                        if (this.breath_loop) {
-                            this.breath();
-                        }
-                    }
+            settings: {
+                targetPath: this.path0,
+                duration: 10000,
+                easing: "swing",
+                complete: () => {
+                    // Hack to allow animation to start again.
+                    this.compAni.group.data._animatePaperVals.moveOnPath = 0;
                 }
             }
-        ]);
-    }
-
-    moveToAbsoluteNegativePosition() {
-        __WEBPACK_IMPORTED_MODULE_2_paper_animate___default.a.animate(this.rect0, [
-            {
-                properties: {
-                    position: {
-                        x: 300,
-                        y: 300,
-                    },
-                },
-                settings: {
-                    duration: 500,
-                    easing: "swing",
-                },
-            },
-            {
-                properties: {
-                    position: {
-                        // this is an absolute position!!
-                        x: -100,
-                        // x: this.rect0.bounds.width * -1,
-                    },
-                },
-                settings: {
-                    duration: 500,
-                    easing: "swing",
-                },
-            },
-        ]);
+        });
     }
 }
 
@@ -1759,12 +2265,14 @@ class MainApp {
 // It is an incredibly popular mistake to use load where DOMContentLoaded
 // would be much more appropriate, so be cautious.
 
+let myapp = {};
+
 window.addEventListener("load", function(event) {
     var canvas = document.getElementById('myCanvas');
-    const myapp = new MainApp(canvas);
+    myapp = new MainApp(canvas);
 });
 
 
 /***/ })
-],[20]);
-//# sourceMappingURL=animation_simple.js.map
+],[17]);
+//# sourceMappingURL=animation_combinedcomplex.js.map

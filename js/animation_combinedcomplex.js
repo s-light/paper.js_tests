@@ -1,4 +1,15 @@
 
+import ShowFPS from './showfps';
+
+import paper from 'paper';
+import animatePaper from 'paper-animate';
+
+import {
+    MultiAnimation,
+    MultiAnimationSVG,
+} from './animation_multi';
+
+
 class MainApp {
     constructor(canvas_el) {
         this.canvas_el = canvas_el;
@@ -52,8 +63,8 @@ class MainApp {
         // // console.log(this.path0 instanceof paper.Path);
 
         // import path to move on..
-        const tempImporter = new paper.Group();
-        tempImporter.importSVG(
+        this.graphic_starloop = new paper.Group();
+        this.graphic_starloop.importSVG(
             "./svg/starloop.svg",
             {
                 expandShapes: true,
@@ -65,15 +76,18 @@ class MainApp {
                     // console.log("get path", item.children.layer1.children.myloop);
                     // this.path0.removeSegments();
                     // this.path0 = new paper.Path();
+                    item.clipped = false;
                     this.path0 = item.children.layer1.children.myloop;
                     this.path0.strokeColor = 'yellow';
                     this.path0.name = 'path0';
-                    this.path0.position = new paper.Point(300, 300);
+                    this.path0.position = new paper.Point(500, 300);
                     console.log("apply matrix to path:", this.path0.matrix.apply());
                 },
                 onError: (message) => {console.error(message);}
             }
         );
+        // this.graphic_starloop.position = [500, 100];
+
     }
 
     _addCustomAnimations() {
@@ -228,7 +242,7 @@ class MainApp {
             },
             settings: {
                 targetPath: this.path0,
-                duration: 6000,
+                duration: 10000,
                 easing: "swing",
                 complete: () => {
                     // Hack to allow animation to start again.

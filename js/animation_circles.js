@@ -1,4 +1,15 @@
 
+import ShowFPS from './showfps';
+
+import paper from 'paper';
+import animatePaper from 'paper-animate';
+
+import {
+    MultiAnimation,
+    MultiAnimationSVG,
+} from './animation_multi';
+
+
 class MainApp {
     constructor(canvas_el) {
         this.canvas_el = canvas_el;

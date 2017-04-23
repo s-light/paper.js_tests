@@ -8,6 +8,12 @@ module.exports = function(env) {
         //     osc: 'osc'
         // },
         entry: {
+            only_showstats: './js/only_showstats.js',
+            animation_arrows: './js/animation_arrows.js',
+            animation_circles: './js/animation_circles.js',
+            animation_combinedcomplex: './js/animation_combinedcomplex.js',
+            animation_complex: './js/animation_complex.js',
+            animation_moveonpath: './js/animation_moveonpath.js',
             animation_simple: './js/animation_simple.js',
         },
         output: {
