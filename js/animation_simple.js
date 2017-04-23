@@ -166,8 +166,8 @@ class MainApp {
             {
                 properties: {
                     position: {
-                        x: 200,
-                        y: 200,
+                        x: 300,
+                        y: 300,
                     },
                 },
                 settings: {
