@@ -6,10 +6,14 @@
 
     <link rel="stylesheet" href="css/main.css">
 
-    <script src="bower_components/stats.js/build/stats.js"></script>
-    <script src="js/showfps.js"></script>
+    <script src="dist/manifest.js"></script>
+    <script src="dist/vendor.js"></script>
 
-    <script src="bower_components/paper/dist/paper-full.js"></script>
+    <script src="dist/only_showstats.js"></script>
+
+
+    <!-- Manually add paper.js -->
+    <script src="node_modules/paper/dist/paper-full.js"></script>
 
     <!-- Load external PaperScript and associate it with myCanvas -->
     <script type="text/paperscript" src="js/svg_hit.js" canvas="myCanvas"></script>
