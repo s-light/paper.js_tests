@@ -1,8 +1,79 @@
+webpackJsonp([1],{
 
-import ShowFPS from './showfps';
+/***/ 13:
+/***/ (function(module, exports) {
 
-import paper from 'paper';
-import animatePaper from 'paper-animate';
+/* (ignored) */
+
+/***/ }),
+
+/***/ 14:
+/***/ (function(module, exports) {
+
+/* (ignored) */
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_stats_js__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_stats_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_stats_js__);
+// show fps with help from
+// https://github.com/mrdoob/stats.js
+
+
+
+class ShowFPS {
+    constructor() {
+        // ******************************************
+        // display some stats
+        // https://github.com/mrdoob/stats.js
+        this.stats = new __WEBPACK_IMPORTED_MODULE_0_stats_js___default.a();
+        // 0: fps, 1: ms, 2: mb, 3+: custom
+        this.stats.showPanel(0);
+        this.stats.dom.style.left = 'auto';
+        this.stats.dom.style.right = 0;
+        document.body.appendChild( this.stats.dom );
+
+        requestAnimationFrame( () => {this.animate();} );
+    }
+
+    animate() {
+        // this.stats.begin();
+        // // monitored code goes here
+        // this.stats.end();
+        this.stats.update();
+        requestAnimationFrame( () => {this.animate();} );
+    }
+}
+/* unused harmony export default */
+
+
+// Only executed our code once the DOM is ready.
+window.addEventListener("load", function(event) {
+    const myShowFPS = new ShowFPS();
+});
+
+
+/***/ }),
+
+/***/ 8:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__showfps__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_paper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_paper___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_paper__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_paper_animate__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_paper_animate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_paper_animate__);
+
+
+
+
+
 
 
 
@@ -36,7 +107,7 @@ class MainApp {
     }
 
     _initPaperJS() {
-        this.paperscope = paper.setup(this.canvas_el);
+        this.paperscope = __WEBPACK_IMPORTED_MODULE_1_paper___default.a.setup(this.canvas_el);
         // console.log("this.paperscope", this.paperscope);
 
         // set applyMatrix=false --> this means matrix can be read back...
@@ -45,11 +116,11 @@ class MainApp {
         // all newly created paper Objects go into this project.
         this.paperscope.project.activate();
 
-        this.rect0 = new paper.Path.Rectangle({
+        this.rect0 = new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Path.Rectangle({
             point: [0, 0],
             size: [200, 150],
             strokeColor: 'lime',
-            fillColor: new paper.Color(1,1,1, 0.2),
+            fillColor: new __WEBPACK_IMPORTED_MODULE_1_paper___default.a.Color(1,1,1, 0.2),
             name:"rect0"
         });
 
@@ -111,7 +182,7 @@ class MainApp {
         // this.rect0.position.y = event.clientY;
         // this.paperscope.view.draw();
 
-        animatePaper.animate(this.rect0, {
+        __WEBPACK_IMPORTED_MODULE_2_paper_animate___default.a.animate(this.rect0, {
             properties: {
                 position: {
                     x: event.clientX,
@@ -140,7 +211,7 @@ class MainApp {
         // console.log("this", this);
         // console.log("event", event);
 
-        animatePaper.animate(this.rect0, [
+        __WEBPACK_IMPORTED_MODULE_2_paper_animate___default.a.animate(this.rect0, [
             {
                 properties: {
                     scale: 1.2,
@@ -169,7 +240,7 @@ class MainApp {
     }
 
     moveToAbsoluteNegativePosition() {
-        animatePaper.animate(this.rect0, [
+        __WEBPACK_IMPORTED_MODULE_2_paper_animate___default.a.animate(this.rect0, [
             {
                 properties: {
                     position: {
@@ -212,3 +283,9 @@ window.addEventListener("load", function(event) {
     var canvas = document.getElementById('myCanvas');
     const myapp = new MainApp(canvas);
 });
+
+
+/***/ })
+
+},[8]);
+//# sourceMappingURL=animation_simple.js.map

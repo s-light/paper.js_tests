@@ -1,0 +1,18 @@
+{
+  "name": "paper.js_tests",
+  "version": "0.1.0",
+  "description": "various tests with paper.js in combination with ohter libraries",
+  "main": "dist/bundle.js",
+  "repository": "git@github.com:s-light/paper.js_tests.git",
+  "author": "s-light <github@s-light.eu>",
+  "license": "MIT",
+  "dependencies": {
+    "interactjs": "^1.2.8",
+    "paper": "^0.11.2",
+    "paper-animate": "^1.0.1",
+    "stats.js": "^0.17.0"
+  },
+  "devDependencies": {
+    "webpack": "^2.4.1"
+  }
+}

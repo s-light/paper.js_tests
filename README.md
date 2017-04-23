@@ -2,9 +2,18 @@
 random tests with paper.js
 (http://paperjs.org/)
 
+this project uses [yarnpackage-manager](https://yarnpkg.com/) and the [webpack](https://webpack.js.org/) bundling system.
+
 clone or download this repository.  
-then install dependencies with [bower](https://bower.io/):  
-`paper.js-examples$ bower install`
+then install dependencies with [yarn](https://yarnpkg.com/):  
+`paper.js-examples$ yarn`
+
+after this you can build the script bundle with  
+`./node_modules/webpack/bin/webpack.js --progress`  
+or  
+`./node_modules/webpack/bin/webpack.js --progress --watch`  
+for automatically rebuilds on file changes.
+
 
 eventually it is better to use some sort of webserver to view the examples:  
 for example [python2 SimpleHTTPServer](https://docs.python.org/2/library/simplehttpserver.html)  
@@ -21,3 +30,6 @@ the different examples & tests require/use one ore more of these other projects:
 - [animatePaper.js](http://eartz.github.io/animatePaper.js/)
 - [interactjs](http://interactjs.io/)
 - [stats.js](https://github.com/mrdoob/stats.js)
+
+some of the examples are development-tests for the libraries.
+so they only work with linked dependencies to the current github master repository versions.
