@@ -40,7 +40,7 @@ class MainApp {
 
         this.rect0 = new paper.Path.Rectangle({
             point: [0, 0],
-            size: [150, 150],
+            size: [200, 150],
             strokeColor: 'lime',
             fillColor: new paper.Color(1,1,1, 0.2),
             name:"rect0"
@@ -78,17 +78,8 @@ class MainApp {
                 // space bar pressed
                 this.toggleBreath();
             } break;
-            case "ArrowDown": {
-                // Do something for "down arrow" key press.
-            } break;
-            case "ArrowUp": {
-                // Do something for "up arrow" key press.
-            } break;
-            case "ArrowLeft": {
-                // Do something for "left arrow" key press.
-            } break;
-            case "ArrowRight": {
-                // Do something for "right arrow" key press.
+            case "p": {
+                this.moveToAbsoluteNegativePosition();
             } break;
             case "Enter": {
                 // Do something for "enter" or "return" key press.
@@ -113,22 +104,10 @@ class MainApp {
         // this.rect0.position.y = event.clientY;
         // this.paperscope.view.draw();
 
-        // convert absolute position to relative
-        // this avoids a bug in older animatePaper.js:
-        // see report at https://github.com/Eartz/animatePaper.js/issues/8
-
-        const x_relative_number =  event.clientX - this.rect0.position.x;
-        let x_relative = String(x_relative_number);
-        if (x_relative_number >= 0) {
-            x_relative = "+" + x_relative;
-        }
-        // console.log("x_relative", x_relative);
-
-        this.rect0.animate({
+        animatePaper.animate(this.rect0, {
             properties: {
                 position: {
-                    // x: event.clientX,
-                    x: x_relative,
+                    x: event.clientX,
                     y: event.clientY,
                 }
             },
@@ -154,7 +133,7 @@ class MainApp {
         // console.log("this", this);
         // console.log("event", event);
 
-        this.rect0.animate([
+        animatePaper.animate(this.rect0, [
             {
                 properties: {
                     scale: 1.2,
@@ -182,6 +161,35 @@ class MainApp {
         ]);
     }
 
+    moveToAbsoluteNegativePosition() {
+        animatePaper.animate(this.rect0, [
+            {
+                properties: {
+                    position: {
+                        x: 200,
+                        y: 200,
+                    },
+                },
+                settings: {
+                    duration: 500,
+                    easing: "swing",
+                },
+            },
+            {
+                properties: {
+                    position: {
+                        // this is an absolute position!!
+                        x: -100,
+                        // x: this.rect0.bounds.width * -1,
+                    },
+                },
+                settings: {
+                    duration: 500,
+                    easing: "swing",
+                },
+            },
+        ]);
+    }
 }
 
 
