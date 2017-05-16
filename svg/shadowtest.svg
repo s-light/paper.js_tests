@@ -17,75 +17,6 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="shadowtest.svg">
-  <title
-     id="title4135">Shadow Test</title>
-  <defs
-     id="defs4">
-    <filter
-       style="color-interpolation-filters:sRGB;"
-       inkscape:label="Drop Shadow"
-       id="filter4309">
-      <feFlood
-         flood-opacity="0.72549"
-         flood-color="rgb(0,0,0)"
-         result="flood"
-         id="feFlood4311" />
-      <feComposite
-         in="flood"
-         in2="SourceGraphic"
-         operator="in"
-         result="composite1"
-         id="feComposite4313" />
-      <feGaussianBlur
-         in="composite1"
-         stdDeviation="6"
-         result="blur"
-         id="feGaussianBlur4315" />
-      <feOffset
-         dx="2.77556e-17"
-         dy="0"
-         result="offset"
-         id="feOffset4317" />
-      <feComposite
-         in="SourceGraphic"
-         in2="offset"
-         operator="over"
-         result="composite2"
-         id="feComposite4319" />
-    </filter>
-    <filter
-       style="color-interpolation-filters:sRGB;"
-       inkscape:label="Drop Shadow"
-       id="filter4321">
-      <feFlood
-         flood-opacity="0.72549"
-         flood-color="rgb(0,0,0)"
-         result="flood"
-         id="feFlood4323" />
-      <feComposite
-         in="flood"
-         in2="SourceGraphic"
-         operator="in"
-         result="composite1"
-         id="feComposite4325" />
-      <feGaussianBlur
-         in="composite1"
-         stdDeviation="6"
-         result="blur"
-         id="feGaussianBlur4327" />
-      <feOffset
-         dx="2.77556e-17"
-         dy="0"
-         result="offset"
-         id="feOffset4329" />
-      <feComposite
-         in="SourceGraphic"
-         in2="offset"
-         operator="over"
-         result="composite2"
-         id="feComposite4331" />
-    </filter>
-  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#b5fff1"
@@ -122,13 +53,82 @@
      inkscape:snap-bbox-edge-midpoints="true"
      inkscape:snap-bbox-midpoints="true">
     <inkscape:grid
-       type="xygrid"
-       id="grid4133"
-       units="mm"
-       spacingx="35.43307"
+       empspacing="2"
        spacingy="35.43307"
-       empspacing="2" />
+       spacingx="35.43307"
+       units="mm"
+       id="grid4133"
+       type="xygrid" />
   </sodipodi:namedview>
+  <title
+     id="title4135">Shadow Test</title>
+  <defs
+     id="defs4">
+    <filter
+       id="filter4309"
+       inkscape:label="Drop Shadow"
+       style="color-interpolation-filters:sRGB">
+      <feFlood
+         id="feFlood4311"
+         result="flood"
+         flood-color="rgb(0,0,0)"
+         flood-opacity="0.72549" />
+      <feComposite
+         id="feComposite4313"
+         result="composite1"
+         operator="in"
+         in2="SourceGraphic"
+         in="flood" />
+      <feGaussianBlur
+         id="feGaussianBlur4315"
+         result="blur"
+         stdDeviation="6"
+         in="composite1" />
+      <feOffset
+         id="feOffset4317"
+         result="offset"
+         dy="0"
+         dx="2.77556e-17" />
+      <feComposite
+         id="feComposite4319"
+         result="composite2"
+         operator="over"
+         in2="offset"
+         in="SourceGraphic" />
+    </filter>
+    <filter
+       id="filter4321"
+       inkscape:label="Drop Shadow"
+       style="color-interpolation-filters:sRGB">
+      <feFlood
+         id="feFlood4323"
+         result="flood"
+         flood-color="rgb(0,0,0)"
+         flood-opacity="0.72549" />
+      <feComposite
+         id="feComposite4325"
+         result="composite1"
+         operator="in"
+         in2="SourceGraphic"
+         in="flood" />
+      <feGaussianBlur
+         id="feGaussianBlur4327"
+         result="blur"
+         stdDeviation="6"
+         in="composite1" />
+      <feOffset
+         id="feOffset4329"
+         result="offset"
+         dy="0"
+         dx="2.77556e-17" />
+      <feComposite
+         id="feComposite4331"
+         result="composite2"
+         operator="over"
+         in2="offset"
+         in="SourceGraphic" />
+    </filter>
+  </defs>
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -159,49 +159,89 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
+     style="display:inline"
      transform="translate(0,-698.0315)"
-     style="display:inline">
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
     <rect
-       style="opacity:1;fill:#00ff00;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3.54330707;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;filter:url(#filter4321)"
-       id="rect4156"
-       width="141.73228"
-       height="141.73228"
+       y="733.4646"
        x="35.433071"
-       y="733.4646" />
-    <image
-       sodipodi:absref="/home/stefan/_LocalData/projects/github/paper.js_tests/svg/shadowtest_shadowonly.png"
-       xlink:href="shadowtest_shadowonly.png"
-       width="170"
-       height="170"
-       preserveAspectRatio="none"
-       style="image-rendering:optimizeQuality"
-       id="image5052"
-       x="127.55905"
-       y="825.66931" />
-    <rect
-       style="opacity:1;fill:#00ff00;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3.54330707;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect4156-3"
-       width="141.73228"
        height="141.73228"
+       width="141.73228"
+       id="rect4156"
+       style="opacity:1;fill:#00ff00;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3.54330707;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;filter:url(#filter4321)" />
+    <image
+       y="825.66931"
+       x="127.55905"
+       id="image5052"
+       style="image-rendering:optimizeQuality"
+       preserveAspectRatio="none"
+       height="170"
+       width="170"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKoAAACqCAYAAAA9dtSCAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAARdEVY
+dFRpdGxlAFNoYWRvdyBUZXN021w21AAAABV0RVh0QXV0aG9yAFN0ZWZhbiBLcsO8Z2VyV1oqogAA
+ABh0RVh0Q3JlYXRpb24gVGltZQAxNi4wNS4yMDE383zQQQAAAFh0RVh0Q29weXJpZ2h0AENDMCBQ
+dWJsaWMgRG9tYWluIERlZGljYXRpb24gaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvcHVibGlj
+ZG9tYWluL3plcm8vMS4wL8bjvfkAAAfTSURBVHic7ZrbkeM2EEVbD//ZTmM3DgdiZ+JUtryB2Gns
+xmF/ekR/zGCm2eoGQI12y1c8p4pFCAM1qeKZxosHqzm8o+6WNqDLcmOb2bpSoFh/mCj34sE+idIt
+E+Xs81C0TMrqnH0f9k0mY3WO5dXnmezoz1U5+35VB49Lryv356qcxVjMzM7FBaOQ2WdkBc8WSb2g
+h/B3//mVs2tsoZxJ2Y5j0S7GgH0Su/OYOS9JvW/vZT2Y2XK2OUmPSflo15IiK1Tj0nZc7NmNS6iL
+MVay+q4/kzRKeXRHlV39GfZJ1uU3MY92Latv42O8yhrHqFU33zt6WRX2S5VNm6TtaHK2+ixGOUbN
+BD2FcybqSNaZhWHQYfSc4+Tp4o6n4vsX9912jSV2/VX37yU9WS1r7+b9xeExmHnWlaRZ++ZRK7/G
+ySZTvYx6tr6o2Y1XciKtJrO7mWZ1No2uxFWBlaTmJlO9ZaiYSX8ws1/N7KPNZVKE3Aezw4AvZva5
++JvPqj7mki34V7P8JupvZvb7DT8EoHEws0/2JufR3rLu0dYZ1uyl0n+5Wpryx4dv+QtgF3ywfPWo
+mpy/jlFnx6nH0HYxs7+/yU+BR+MnW3fpmVvZ+PVgtl5HzZaYMml9kH/M7Bd7m6m1dJ3tOmRbaaBH
+5ofZ9SaQb7OY2V/2LKvZtU8994YvpfSO7MYbTdKLXe/pZm/NgBY9oXxmjMPKLMaMX2bW35mqAkay
+bbJLOKKsZFVNel54MTNZs1ijbPpKtjM1uqmMTM62sJu9LYOomvSGhRd7XhXyM3mz6+GiFTGs0271
+9lRP1h7VzoM/V692IaoWmagxe8ZnOuNQ1a4NKQ6jl1JmLhYnTl7SVs5kNUNUNaKoXtLsWR4sf9kk
+i+njll3/e8i6/adw+DbtO0yo9Mhm+r7bz9q2du9iRtRR6q66fn9U3T+iahEznt9NGrUbxe1yr4za
+m0zFjIqoumQC+m6/1fuF+2pYsIkZUZei7OuqZanZZSrQIBO1yeoFbWe/2xQZebXilowag2Yvx1bS
+Iqo2vXX1JmicYGXPefNznxW1FziTrxKTrl+bbP00e+6xfuTPkC0ZtQoYt0WzG6+yKaJq056xWS7u
+aBly+vlv7fp7F+wdvTagy2LrseqWZ7zp2d9r1j/TBlEfj/YMZ5Yw38U9RDUb/0ch6mPy3Z7xu3cM
+AL4HiAoSICpIgKggAaKCBIgKEiAqSICoIAGiggSIChIgKkiAqCABooIEiAoSICpIgKggAaKCBIgK
+EiAqSICoIAGiggSIChIgKkiAqCABooIEiAoSICpIgKggAaKCBIgKEiAqSICoIAGiggSIChIgKkiA
+qCABooIEiAoSICpIgKggAaKCBIgKEiAqSICoIAGiggSIChIgKkiAqCABooIEiAoSICpIgKggAaKC
+BIgKEiAqSICoIAGiggSIChIgKkiAqCABooIEiAoSICpIgKggAaKCBIgKEiAqSICoIAGiggSIChIg
+KkiAqCABooIEiAoSICpIgKggAaKCBIgKEiAqSICoIAGiggSIChIgKkiAqCABooIEiAoSICpIgKgg
+AaKCBIgKEiAqSICoIAGiggSIChIgKkiAqCABooIEiAoSICpIgKggAaKCBIgKEiAqSICoIAGiggSI
+ChIgKkhwvlOcw4YDdNnynO/6zO8h6syNIOpjcKuI737uW0WtLjj6j1oMUR+BStJbMuomF7aIOrpg
+doNHe5bUzOyy9ebgf0f1jNvRE7mKN8WsqL2AvZu/JPVLOECHUeYcCVvFHHLLGDUGzm72Ym837WWM
+kiKqFqOMenR1PVE396wzoh6Ksq/zci7Jud3sxRBVmV4GjcJGabNYWTnlXrP+2K238umljR8CIKou
+majtfLJa1u8y6x/JlIl6Cm38eNUMUVWJXbmX8eSOraIOPbhXRm07XJl8rctvsvo2iKpFXOGJ3X4m
+atX1byKKWnXLPaFilx/JxrCIqkm2FJl1/6dQ3xO1N9l+5Wxvk51MmhmRfDdQ1UdJEVWTas3cd/+3
+jlF7/i1nVxGDeZlGY0rf/ccfkUmKqJqMNndmZ/xm8z4sZv2uPwuWBfI34rOn/3sVF/SIO0695ape
+Nq3cKrv+2SCVrDEbe1lbRs1uAFE1ySQ1W4sZh4GZM7N+mdla1FE2vdjbrL3xo5n9OfplAPbsSiP6
+NMyqZ/chW+O8JIcX9WBmP9/tp8Be6LmVrTgtx1hha0mzgF+/6U+APfDVcknLLfZsjNq+cAjnp5fy
+Hy9tPtr1wDqDseg+GD3/Jt4XM/tszz49WS3rVfBjKGeLt+04W3+bLLvZSlQE1qQSsnr22TCySfqv
+Kz+5v11J6xf8W2BzjdoN+JtoF64WdWd3IUCfmWfdEzVm1HKcGmf97eLxPyG7ieol2d4PQNTHYra7
+r2SNGbRca892ptofK0GrbDqTUWE/ZLJmM/0qo67iZDtT8XO2YO8nXH6bDFnB7HpTJ87oZ2b7Kxdj
+1x9fTvHvkPohQdx5ygRF1n1ylQ2tXvaMdVn3b2Z9wbIXD+LbMrFdjAH75GrB3ursWmXSVYxKrkrC
+TNrYPoK0+yCbKGdDgErKUlKzfhbMJKzK2ferOnhctsialbMYV6KOPldi0uVDRTVezc6xvPo8u8sw
+GiKM4sE+KcXrlLPPXbFmu/IZORH4sZnZyOkNC4ax/gM+E16wGhpmSQAAAABJRU5ErkJggg==
+" />
+    <rect
+       y="839.76379"
        x="141.73228"
-       y="839.76379" />
+       height="141.73228"
+       width="141.73228"
+       id="rect4156-3"
+       style="opacity:1;fill:#00ff00;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3.54330707;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
   </g>
   <g
-     inkscape:groupmode="layer"
-     id="layer2"
+     style="display:none"
      inkscape:label="shadow_export"
-     style="display:none">
+     id="layer2"
+     inkscape:groupmode="layer">
     <rect
-       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3.54330707;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;filter:url(#filter4309)"
-       id="rect4156-3-6"
-       width="141.73228"
-       height="141.73228"
-       x="141.73228"
-       y="141.7323"
+       inkscape:export-ydpi="90"
        inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
+       y="141.7323"
+       x="141.73228"
+       height="141.73228"
+       width="141.73228"
+       id="rect4156-3-6"
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3.54330707;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;filter:url(#filter4309)" />
   </g>
 </svg>
