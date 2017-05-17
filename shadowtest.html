@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>animation complex</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- Load the Paper.js library -->
+    <script src="dist/manifest.js"></script>
+    <script src="dist/vendor.js"></script>
+
+    <script src="dist/only_showstats.js"></script>
+
+
+    <!-- Manually add paper.js -->
+    <script src="node_modules/paper/dist/paper-full.js"></script>
+
+    <!-- Load external PaperScript and associate it with myCanvas -->
+    <script type="text/paperscript" src="js/svgshadows.js" canvas="myCanvas">
+    </script>
+
+    <style media="screen">
+
+        html,
+        body {
+            background-color: rgb(200, 255, 255);
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <p>
+            testing svg and shadows and scaling.<br>
+        </p>
+    </div>
+	<canvas id="myCanvas" resize="true"></canvas>
+</body>
+</html>
