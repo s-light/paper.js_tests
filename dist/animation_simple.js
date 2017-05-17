@@ -1,58 +1,58 @@
 webpackJsonp([5],[
 /* 0 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-/**
- *  Easing. Based on easing equations from Robert Penner (http://www.robertpenner.com/easing) and
- *  implementation of these equations in https://github.com/jquery/jquery-ui/blob/master/ui/effect.js
- *  
- *  @class easing
- *  @static
- */
-var easing = {
-    linear: function(p) {
+"use strict";
+
+exports.__esModule = true;
+exports.easing = {
+    extendEasing: function (customEasings) {
+        for (var i in customEasings) {
+            if (customEasings.hasOwnProperty(i)) {
+                exports.easing[i] = customEasings[i];
+            }
+        }
+    },
+    linear: function (p) {
         return p;
     },
-    swing: function(p) {
+    swing: function (p) {
         return 0.5 - Math.cos(p * Math.PI) / 2;
     },
-    Sine: function(p) {
+    Sine: function (p) {
         return 1 - Math.cos(p * Math.PI / 2);
     },
-    Circ: function(p) {
+    Circ: function (p) {
         return 1 - Math.sqrt(1 - p * p);
     },
-    Elastic: function(p) {
+    Elastic: function (p) {
         return p === 0 || p === 1 ? p :
             -Math.pow(2, 8 * (p - 1)) * Math.sin(((p - 1) * 80 - 7.5) * Math.PI / 15);
     },
-    Back: function(p) {
+    Back: function (p) {
         return p * p * (3 * p - 2);
     },
-    Bounce: function(p) {
-        var pow2,
-            bounce = 4;
-
-        while (p < ((pow2 = Math.pow(2, --bounce)) - 1) / 11) {}
+    Bounce: function (p) {
+        var pow2, bounce = 4;
+        while (p < ((pow2 = Math.pow(2, --bounce)) - 1) / 11) { }
         return 1 / Math.pow(4, 3 - bounce) - 7.5625 * Math.pow((pow2 * 3 - 2) / 22 - p, 2);
     }
 };
 var __tempEasing = ["Quad", "Cubic", "Quart", "Quint", "Expo"];
 for (var i = 0, l = __tempEasing.length; i < l; i++) {
-    easing[__tempEasing[i]] = function(p) {
+    exports.easing[__tempEasing[i]] = function (p) {
         return Math.pow(p, i + 2);
     };
 }
 __tempEasing = null;
-for (var name in easing) {
-    if (easing.hasOwnProperty(name)) {
-        var easeIn = easing[name];
-
-        easing["easeIn" + name] = easeIn;
-        easing["easeOut" + name] = function(p) {
+for (var name in exports.easing) {
+    if (exports.easing.hasOwnProperty(name)) {
+        var easeIn = exports.easing[name];
+        exports.easing["easeIn" + name] = easeIn;
+        exports.easing["easeOut" + name] = function (p) {
             return 1 - easeIn(1 - p);
         };
-        easing["easeInOut" + name] = function(p) {
+        exports.easing["easeInOut" + name] = function (p) {
             return p < 0.5 ?
                 easeIn(p * 2) / 2 :
                 1 - easeIn(p * -2 + 2) / 2;
@@ -60,60 +60,41 @@ for (var name in easing) {
     }
 }
 
-module.exports = easing;
-module.exports.extendEasing = function(customEasings) {
-    for (var i in customEasings) {
-        if (customEasings.hasOwnProperty(i)) {
-            easing[i] = customEasings[i];
-        }
-    }
-};
+//# sourceMappingURL=easing.js.map
 
 
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Animation = __webpack_require__(3);
+"use strict";
+
+exports.__esModule = true;
+var animation_1 = __webpack_require__(3);
 var effects = __webpack_require__(8);
-var frameManager = __webpack_require__(4);
+var easing_1 = __webpack_require__(0);
+var _frameManager = __webpack_require__(4);
+var prophooks_1 = __webpack_require__(6);
 var paper = __webpack_require__(5);
-/**
- *  The main animation interface.
- *  It can take a single option object or an array of option objects
- *  if you want to chain animations without falling into Callback Hell.
- *
- *  @method animate
- *  @chainable
- *  @for animatePaper
- */
-exports.animate = function(item, animation) {
+exports.animate = function (item, animation) {
     var animations = [];
     var output;
-
     if (animation instanceof Array) {
         animations = animation;
-    } else {
+    }
+    else {
         animations.push(animation);
     }
-    var index = 0; // current index in the animations
-    new Animation(item, animations[index].properties, animations[index].settings, function _continue() {
+    var index = 0;
+    new animation_1.Animation(item, animations[index].properties, animations[index].settings, function _continue() {
         index++;
         if (typeof animations[index] !== "undefined") {
-            new Animation(item, animations[index].properties, animations[index].settings, _continue);
+            new animation_1.Animation(item, animations[index].properties, animations[index].settings, _continue);
         }
     });
     return item;
 };
-/**
- *  Stops all animations on the item. If `goToEnd` is `true`,
- *  the animated properties will be set to their final values.
- *  
- *  @method stop
- *  @chainable
- *  @for animatePaper
- */
-exports.stop = function(item, goToEnd, forceEnd) {
+exports.stop = function (item, goToEnd, forceEnd) {
     if (!!item.data._animatePaperAnims) {
         for (var i = 0, l = item.data._animatePaperAnims.length; i < l; i++) {
             if (!!item.data._animatePaperAnims[i]) {
@@ -123,70 +104,31 @@ exports.stop = function(item, goToEnd, forceEnd) {
     }
     return item;
 };
-/**
- *  Use this method to extend the private {{#crossLink "easing"}}{{/crossLink}} collection.
- *
- *  The `customEasings` object should like this :
- *  ````
- *      {
- *          "easingName": function(p) { easing algorithm }
- *      }
- *  ````
- *  When used, easing functions are passed the following arguments :
- *   * `percent`
- *   * `percent * duration`
- *
- *  Easing functions are obviously expected to return the eased percent.
- *
- *  @method extendEasing
- *  @for animatePaper
- *  @param {Object} customEasings A collection of easing functions
- */
-exports.extendEasing = __webpack_require__(0).extendEasing;
-/**
- *  Use this method to extend {{#crossLink "_tweenPropHooks"}}{{/crossLink}}.
- *
- *  The `customHooks` object should like this :
- *  ````
- *      {
- *          "propertyName": {
- *              set: function() {},
- *              get: function() {},
- *              ease: function() {}
- *          }
- *      }
- *  ````
- *  Each hook can contain a `get`, `set` and `ease` functions. When these functions are used, they are passed only
- *  one argument : the {{#crossLink "Tween"}}{{/crossLink}} object, exept for the `ease()` function which gets the eased percent
- *  as second parameter.
- *
- *   * The `get()` function must return the current value of the `Tween.item`'s property.
- *   * The `set()` function must set the value of the `Tween.item`'s property with `Tween.now` (which will
- *   most likely be the result of `get()` or `ease()`)
- *   * The `ease()` function must return the eased value. The second parameter is the eased percent.
- *
- *
- *  @method extendPropHooks
- *  @for animatePaper
- *  @param {Object} customHooks A collection of objects
- */
-exports.extendPropHooks = __webpack_require__(6).extendPropHooks;
-
-exports.frameManager = frameManager;
+exports.extendEasing = easing_1.easing.extendEasing;
+exports.frameManager = _frameManager;
 exports.fx = effects;
-
-// Extends paper.Item prototype
 if (!paper.Item.prototype.animate) {
-    paper.Item.prototype.animate = function(animation) {
+    paper.Item.prototype.animate = function (animation) {
         return exports.animate(this, animation);
     };
 }
 if (!paper.Item.prototype.stop) {
-    paper.Item.prototype.stop = function(goToEnd, forceEnd) {
+    paper.Item.prototype.stop = function (goToEnd, forceEnd) {
         return exports.stop(this, goToEnd, forceEnd);
     };
 }
-module.exports = exports;
+if (true) {
+    module.exports = {
+        animate: exports.animate,
+        stop: exports.stop,
+        frameManager: exports.frameManager,
+        fx: exports.fx,
+        extendEasing: exports.extendEasing,
+        extendPropHooks: prophooks_1.extendPropHooks
+    };
+}
+
+//# sourceMappingURL=export.js.map
 
 
 /***/ }),
@@ -239,253 +181,146 @@ window.addEventListener("load", function(event) {
 
 "use strict";
 
-
-
+exports.__esModule = true;
 var paper = __webpack_require__(5);
-var Tween = __webpack_require__(9);
+var tween_1 = __webpack_require__(9);
 var frameManager = __webpack_require__(4);
-var easing = __webpack_require__(0);
-
-
-/**
- *  Animation class. Default settings are :
- *
- *  ````
- *      var defaults = {
- *           duration: 400,
- *           easing: "linear",
- *           complete: undefined,
- *           step: undefined,
- *           delay: 0,
- *           repeat: 0
- *      };
- *  ````
- *  @class Animation
- *  @constructor
- *  @param {Object} item a paper.js Item instance, which will be animated.
- *  @param {Object} properties properties to animate
- *  @param {Object} settings
- *  @param {Number} settings.duration Duration of the animation, in ms
- *  @param {Number} settings.delay delay before running the animation, in ms
- *  @param {String} settings.easing
- *  @param {Function} settings.complete Called when the animation is over, in `.end()`. The item is passed as this, the animation as 1st argument
- *  @param {Function} settings.step Called on each `.tick()`
- *  @param {Mixed} settings.repeat function or true or an integer. The animation will repeat as long as function returns `true`, `true` or `repeat` > 0, decrementing by 1 each time.
- */
-function Animation(item, properties, settings, _continue) {
-        var self = this;
-
-        /**
-         *  True if the animation is stopped
-         *  @property {Bool} stopped
-         */
-        self.stopped = false;
-        /**
-         *  Time when the Animation is created
-         *  @property {Timestamp} startTime
-         *  @readonly
-         */
-        self.startTime = new Date().getTime();
-        /**
-         *  Settings, after being normalized in {{#crossLink "_initializeSettings"}}{{/crossLink}}
-         *  @property {Object} settings
-         */
-        self.settings = _initializeSettings(settings);
-        /**
-         *  The animated `paper.Item`
-         *  @property {Object} item
-         *  @readonly
-         */
-        self.item = item;
-        /**
-         *  If provided, use parentItem to use .data and .onFrame. If not, use self.item;
-         *  @property {Object} itemForAnimations
-         *  @readonly
-         */
-        self.itemForAnimations = self.settings.parentItem || self.item;
-
-        /**
-         * Repeat parameter.
-         * If Function, the animation is repeated as long as the function returns `true`.
-         * If `true`, the animation is repeated until `.end(true)` is called.
-         * If `repeat` is an integer, the animation is repeated until `repeat` is <= 0.
-         * Default `0`  
-         * @property {Mixed} repeat
-         */
-        self.repeat = self.settings.repeat || 0;
-        if (typeof self.settings.repeat === "function") {
-            var _repeatCallback = self.settings.repeat;
-            self.repeatCallback = function() {
-                if (!!_repeatCallback(item, self)) {
+var easing_1 = __webpack_require__(0);
+var Animation = (function () {
+    function Animation(item, properties, settings, _continue) {
+        var _this = this;
+        this.stopped = false;
+        this.startTime = new Date().getTime();
+        this.settings = _initializeSettings(settings);
+        this.item = item;
+        this.itemForAnimations = this.settings.parentItem || this.item;
+        this.repeat = this.settings.repeat || 0;
+        if (typeof this.settings.repeat === "function") {
+            var _repeatCallback = this.settings.repeat;
+            this.repeatCallback = function () {
+                if (!!_repeatCallback(item, _this)) {
                     return new Animation(item, properties, settings, _continue);
                 }
                 return null;
             };
-        } else {
-            if (self.repeat === true || self.repeat > 0) {
-                self.repeatCallback = function(newRepeat) {
+        }
+        else {
+            if (this.repeat === true || this.repeat > 0) {
+                this.repeatCallback = function (newRepeat) {
                     settings.repeat = newRepeat;
-                    // used for the repeat feature
                     return new Animation(item, properties, settings, _continue);
                 };
             }
         }
-
-
-
-        /**
-         *  {{#crossLink "Tween"}}{{/crossLink}}s used by the Animation.
-         *  @property {Array} tweens
-         */
-        self.tweens = [];
-        /**
-         *  If the Animation is in `onFrame` mode :
-         *  Identifier of the {{#crossLink "frameMamanger"}}{{/crossLink}} callback called on every tick.
-         *  @property {String} ticker
-         *  @readonly
-         */
-        self.ticker = null;
-        /**
-         *  Callback used when queueing animations.
-         *  @property {Function} _continue
-         *  @readonly
-         *  @private
-         */
-        self._continue = _continue;
-
-        // store the reference to the animation in the item's data
-        if (typeof self.itemForAnimations.data === "undefined") {
-            self.itemForAnimations.data = {};
+        this.tweens = [];
+        this.ticker = null;
+        this._continue = _continue;
+        if (typeof this.itemForAnimations.data === "undefined") {
+            this.itemForAnimations.data = {};
         }
-        if (typeof self.itemForAnimations.data._animatePaperAnims === "undefined") {
-            self.itemForAnimations.data._animatePaperAnims = [];
+        if (typeof this.itemForAnimations.data._animatePaperAnims === "undefined") {
+            this.itemForAnimations.data._animatePaperAnims = [];
         }
-        /**
-         *  Index of the animation in the item's queue.
-         *  @property {Number} _dataIndex
-         *  @readonly
-         *  @private
-         */
-        self._dataIndex = self.itemForAnimations.data._animatePaperAnims.length;
-        self.itemForAnimations.data._animatePaperAnims[self._dataIndex] = self;
-
+        this._dataIndex = this.itemForAnimations.data._animatePaperAnims.length;
+        this.itemForAnimations.data._animatePaperAnims[this._dataIndex] = this;
         for (var i in properties) {
             if (properties.hasOwnProperty(i)) {
-                self.tweens.push(new Tween(i, properties[i], self));
+                this.tweens.push(new tween_1.Tween(i, properties[i], this));
             }
         }
-
-        if (self.settings.mode === "onFrame") {
-            self.ticker = frameManager.add(self.itemForAnimations, "_animate" + self.startTime + (Math.floor(Math.random() * (1000 - 1)) + 1), function() {
-                self.tick();
+        if (this.settings.mode === "onFrame") {
+            this.ticker = frameManager.add(this.itemForAnimations, "_animate" + this.startTime + (Math.floor(Math.random() * (1000 - 1)) + 1), function () {
+                _this.tick();
             });
         }
     }
-    /**
-     *  Called on each step of the animation.
-     *
-     *  @method tick
-     */
-Animation.prototype.tick = function() {
-    var self = this;
-    if (!!self.stopped) return false;
-    var currentTime = new Date().getTime();
-    if( self.startTime + self.settings.delay > currentTime ){
-        return false;
-    }
-    var remaining = Math.max(0, self.startTime + self.settings.delay + self.settings.duration - currentTime);
-    var temp = remaining / self.settings.duration || 0;
-    var percent = 1 - temp;
-
-    for (var i = 0, l = self.tweens.length; i < l; i++) {
-        self.tweens[i].run(percent);
-    }
-    if (typeof self.settings.step !== "undefined") {
-        self.settings.step.call(self.item, {
-            percent: percent,
-            remaining: remaining
-        });
-    }
-    if (typeof self.settings.parentItem !== "undefined") {
-        self.settings.parentItem.project.view.draw();
-    } else {
-        self.item.project.view.draw();
-    }
-
-    // if the Animation is in timeout mode, we must force a View update
-    if (self.settings.mode === "timeout") {
-        //
-    }
-    if (percent < 1 && l) {
-        return remaining;
-    } else {
-        self.end();
-        return false;
-    }
-};
-/**
- *  Interrupts the animation. If `goToEnd` is true, all the properties are set to their final value.
- *  @method stop
- *  @param {Bool} goToEnd
- *  @param {Bool} forceEnd to prevent loops
- */
-Animation.prototype.stop = function(goToEnd, forceEnd) {
-    var self = this;
-    var i = 0;
-    var l = goToEnd ? self.tweens.length : 0;
-    if (!!self.stopped) return self;
-    self.stopped = true;
-    for (; i < l; i++) {
-        self.tweens[i].run(1);
-    }
-    if (!!goToEnd) {
-        // stop further animation
-        if (!!self._continue) self._continue = null;
-        self.end(forceEnd);
-    }
-};
-/**
- *  Called when the animations ends, naturally or using `.stop(true)`.
- *  @method end
- */
-Animation.prototype.end = function(forceEnd) {
-    var self = this;
-    if (self.settings.mode === "onFrame") {
-        frameManager.remove(self.itemForAnimations, self.ticker);
-    }
-    if (typeof self.settings.complete !== "undefined") {
-        self.settings.complete.call(self.item, this);
-    }
-
-    // if the Animation is in timeout mode, we must force a View update
-    if (self.settings.mode === "timeout") {
-        //
-    }
-    if (typeof self._continue === "function") {
-        self._continue.call(self.item);
-    }
-    // remove all references to the animation
-    self.itemForAnimations.data._animatePaperAnims[self._dataIndex] = null;
-    if (!!forceEnd || typeof self.repeatCallback !== "function") {
-        self = null;
-    } else {
-        // repeat
-        var newRepeat = self.repeat;
-        if (self.repeat !== true) {
-            newRepeat = self.repeat - 1;
+    Animation.prototype.tick = function () {
+        var self = this;
+        if (!!self.stopped)
+            return false;
+        var currentTime = new Date().getTime();
+        if (self.startTime + self.settings.delay > currentTime) {
+            return false;
         }
-        return self.repeatCallback(newRepeat);
-    }
-};
-
-/**
- *  Normalizes existing values from an Animation settings argument
- *  and provides default values if needed.
- *
- *  @method _initializeSettings
- *  @param {mixed} settings a `settings` object or undefined
- *  @private
- */
+        var remaining = Math.max(0, self.startTime + self.settings.delay + self.settings.duration - currentTime);
+        var temp = remaining / self.settings.duration || 0;
+        var percent = 1 - temp;
+        for (var i = 0, l = self.tweens.length; i < l; i++) {
+            self.tweens[i].run(percent);
+        }
+        if (typeof self.settings.step !== "undefined") {
+            self.settings.step.call(self.item, {
+                percent: percent,
+                remaining: remaining
+            });
+        }
+        if (typeof self.settings.parentItem !== "undefined") {
+            self.settings.parentItem.project.view.draw();
+        }
+        else {
+            self.item.project.view.draw();
+        }
+        if (self.settings.mode === "timeout") {
+        }
+        if (percent < 1 && l) {
+            return remaining;
+        }
+        else {
+            for (var i = 0, l = self.tweens.length; i < l; i++) {
+                self.tweens[i].run(1);
+            }
+            self.end();
+            return false;
+        }
+    };
+    Animation.prototype.stop = function (goToEnd, forceEnd) {
+        if (goToEnd === void 0) { goToEnd = false; }
+        if (forceEnd === void 0) { forceEnd = false; }
+        var self = this;
+        var i = 0;
+        var l = goToEnd ? self.tweens.length : 0;
+        if (!!self.stopped)
+            return self;
+        self.stopped = true;
+        for (; i < l; i++) {
+            self.tweens[i].run(1);
+        }
+        if (!!goToEnd) {
+            if (!!self._continue)
+                self._continue = null;
+            self.end(forceEnd);
+        }
+    };
+    Animation.prototype.end = function (forceEnd) {
+        if (forceEnd === void 0) { forceEnd = false; }
+        var self = this;
+        if (self.settings.mode === "onFrame") {
+            frameManager.remove(self.itemForAnimations, self.ticker);
+        }
+        if (typeof self.settings.complete !== "undefined") {
+            self.settings.complete.call(self.item, this);
+        }
+        if (self.settings.mode === "timeout") {
+        }
+        if (typeof self._continue === "function") {
+            self._continue.call(self.item);
+        }
+        self.itemForAnimations.data._animatePaperAnims[self._dataIndex] = null;
+        if (!!forceEnd || typeof self.repeatCallback !== "function") {
+            self = null;
+        }
+        else {
+            var newRepeat = self.repeat;
+            if (self.repeat !== true) {
+                newRepeat = self.repeat - 1;
+            }
+            return self.repeatCallback(newRepeat);
+        }
+    };
+    return Animation;
+}());
+exports.Animation = Animation;
+;
 function _initializeSettings(settings) {
     var defaults = {
         duration: 400,
@@ -499,33 +334,30 @@ function _initializeSettings(settings) {
     if (typeof settings === "undefined") {
         settings = {};
     }
-
-    // .duration must exist, and be a positive Number
     if (typeof settings.duration === "undefined") {
         settings.duration = defaults.duration;
-    } else {
+    }
+    else {
         settings.duration = Number(settings.duration);
-        if (settings.duration < 1) {
+        if (settings.duration < 0) {
             settings.duration = defaults.duration;
         }
     }
-    // .delay must exist, and be a positive Number
     if (typeof settings.delay === "undefined") {
         settings.delay = defaults.delay;
-    } else {
+    }
+    else {
         settings.delay = Number(settings.delay);
         if (settings.delay < 1) {
             settings.delay = defaults.delay;
         }
     }
-
-    // .repeat must exist, and be a positive Number or true
     if (typeof settings.repeat === "undefined") {
         settings.repeat = defaults.repeat;
     }
     else if (typeof settings.repeat === "function") {
-        // ok
-    } else {
+    }
+    else {
         if (settings.repeat !== true) {
             settings.repeat = Number(settings.repeat);
             if (settings.repeat < 0) {
@@ -533,139 +365,101 @@ function _initializeSettings(settings) {
             }
         }
     }
-
-    // .easing must be defined in `easing`
     if (typeof settings.easing === "undefined") {
         settings.easing = defaults.easing;
     }
-    if (typeof easing[settings.easing] !== "undefined" && easing.hasOwnProperty(settings.easing)) {
-        settings.easingFunction = easing[settings.easing];
-    } else {
-        settings.easing = defaults.easing;
-        settings.easingFunction = easing[defaults.easing];
+    if (typeof settings.easing === "function") {
+        settings.easingFunction = settings.easing;
     }
-
-
-    // callbacks must be functions
+    else {
+        if (typeof easing_1.easing[settings.easing] !== "undefined" && easing_1.easing.hasOwnProperty(settings.easing)) {
+            settings.easingFunction = easing_1.easing[settings.easing];
+        }
+        else {
+            settings.easing = defaults.easing;
+            settings.easingFunction = easing_1.easing[defaults.easing];
+        }
+    }
     if (typeof settings.complete !== "function") {
         settings.complete = undefined;
     }
     if (typeof settings.step !== "function") {
         settings.step = undefined;
     }
-
-    // .mode must be either "onFrame" or "timeout"
     if (["onFrame", "timeout"].indexOf(settings.mode) === -1) {
         settings.mode = defaults.mode;
     }
-
     return settings;
 }
 
-module.exports = Animation;
+//# sourceMappingURL=animation.js.map
 
 
 /***/ }),
 /* 4 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-/**
- *  This is the only function called in a objects `onFrame` handler.
- *  If the objects has callbacks in it's `data._customHandlers` property,
- *  each of these is called.
- *
- *  @private
- *  @method frameManagerHandler
- *  @param {Object} ev The event object
- *  @for frameManager
- */
+"use strict";
+
+exports.__esModule = true;
 function frameManagerHandler(ev) {
-        var item = this;
-        if (typeof item.data === "undefined") {
-            item.data = {};
-        }
-        if (typeof item.data._customHandlers !== "undefined" &&
-            item.data._customHandlersCount > 0
-        ) {
-            // parcourir les handlers et les declencher
-            for (var i in item.data._customHandlers) {
-                if (item.data._customHandlers.hasOwnProperty(i)) {
-                    if (typeof item.data._customHandlers[i] === "function") {
-                        item.data._customHandlers[i].call(item, ev);
-                    }
+    var item = this;
+    if (typeof item.data === "undefined") {
+        item.data = {};
+    }
+    if (typeof item.data._customHandlers !== "undefined" &&
+        item.data._customHandlersCount > 0) {
+        for (var i in item.data._customHandlers) {
+            if (item.data._customHandlers.hasOwnProperty(i)) {
+                if (typeof item.data._customHandlers[i] === "function") {
+                    item.data._customHandlers[i].call(item, ev);
                 }
             }
         }
     }
-    /**
-     *  The `frameManager` is used to bind and unbind multiple callbacks to an object's
-     *  `onFrame`. If an object has at least one handler, it's `onFrame` handler will be
-     *  {{#crossLink "frameManager/frameManagerHandler:method"}}{{/crossLink}}.
-     *
-     *  @class frameManager
-     *  @static
-     */
-module.exports = {
-    /**
-     * Add a callback to a paper.js Item's `onFrame` event.
-     * The Item itself will be the `thisValue` and the event object `ev` will be the first argument
-     * 
-     * @param {Object} item paper.js Item
-     * @param {String} name An identifier for this callback
-     * @param {Function} callback
-     * @param {Object} parentItem If provided, the callback will be called on parentItem.onFrame event instead of item.onFrame
-     * @example
-     *      animatePaper.frameManager.add(circle,"goUp",function(ev) {
-     *          // Animation logic
-     *      });
-     * @method add
-     */
-    add: function(item, name, callback, parentItem) {
-        if (typeof item.data._customHandlers === "undefined") {
-            item.data._customHandlers = {};
+}
+exports.add = function (item, name, callback, parentItem) {
+    if (typeof item.data._customHandlers === "undefined") {
+        item.data._customHandlers = {};
+        item.data._customHandlersCount = 0;
+    }
+    item.data._customHandlers[name] = callback;
+    item.data._customHandlersCount += 1;
+    if (item.data._customHandlersCount > 0) {
+        if (typeof parentItem !== "undefined") {
+            parentItem.onFrame = frameManagerHandler;
+        }
+        else {
+            item.onFrame = frameManagerHandler;
+        }
+    }
+    return name;
+};
+exports.remove = function (item, name) {
+    if (typeof item.data._customHandlers !== "undefined") {
+        item.data._customHandlers[name] = null;
+        item.data._customHandlersCount -= 1;
+        if (item.data._customHandlersCount <= 0) {
             item.data._customHandlersCount = 0;
-        }
-        item.data._customHandlers[name] = callback;
-        item.data._customHandlersCount += 1;
-        if (item.data._customHandlersCount > 0) {
-            if (typeof parentItem !== "undefined") {
-                parentItem.onFrame = frameManagerHandler;
-            } else {
-                item.onFrame = frameManagerHandler;
-            }
-        }
-
-        return name;
-    },
-    /**
-     * Remove a callback from an item's `onFrame` handler.
-     * 
-     * @param {Object} item paper.js Item object
-     * @param {String} name The identifier of the callback you want to remove
-     * @method remove
-     */
-    remove: function(item, name) {
-        if (typeof item.data._customHandlers !== "undefined") {
-            item.data._customHandlers[name] = null;
-            item.data._customHandlersCount -= 1;
-            if (item.data._customHandlersCount <= 0) {
-                item.data._customHandlersCount = 0;
-
-            }
         }
     }
 };
+
+//# sourceMappingURL=frameManager.js.map
+
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var paper = __webpack_require__(12);
-
-if (typeof window.paper !== "undefined") {
+if (typeof window !== "undefined" && typeof window.paper !== "undefined") {
     paper = window.paper;
 }
 module.exports = paper;
+
+//# sourceMappingURL=getPaper.js.map
+
 
 /***/ }),
 /* 6 */
@@ -673,153 +467,111 @@ module.exports = paper;
 
 "use strict";
 
-
+exports.__esModule = true;
 var dirRegexp = /^([+\-])(.+)/;
-/**
- *  check if value is relative or absolute
- *  @private
- *  @method _parseAbsoluteOrRelative
- *  @param {Number} | {String} value to check
- *  @return {Object} `{value: Number, dir: String}`
- *  @for Tween
- */
-function _parseAbsoluteOrRelative(value) {
-    let valueNumber = null;
-    let valueDirection = "";
-
-    // handle absolute values
+exports._parseAbsoluteOrRelative = function (value) {
+    var valueNumber = null;
+    var valueDirection = "";
     valueNumber = Number(value);
-
-    // check for relative values
     if (typeof value === "string") {
-        const valueMatch = value.match(dirRegexp);
+        var valueMatch = value.match(dirRegexp);
         valueDirection = valueMatch[1];
         valueNumber = Number(valueMatch[2]);
     }
-
-    return {value: valueNumber, direction: valueDirection};
-}
-
-/**
- *  Performs an operation on two paper.Point() objects.
- *  Returns the result of : ` a operator b`.
- *  @private
- *  @method _pointDiff
- *  @param {Object} a a `paper.Point` object
- *  @param {Object} b a `paper.Point` object
- *  @param {String} operator either `+` or `-`
- *  @return {Object} `{x: (a.x operator b.x), y: (a.y operator b.y)}`
- *  @for Tween
- */
-function _pointDiff(a, b, operator) {
-    if (['+', '-'].indexOf(operator) === -1) return;
-    if (typeof a === "undefined" || typeof b === "undefined") return;
-
-
+    return { value: valueNumber, direction: valueDirection };
+};
+exports.__pointDiff = function (a, b, operator) {
+    if (['+', '-'].indexOf(operator) === -1)
+        return;
+    if (typeof a === "undefined" || typeof b === "undefined")
+        return;
     var ax, bx, ay, by;
     ax = a.x || 0;
     bx = b.x || 0;
     ay = a.y || 0;
     by = b.y || 0;
-    if( operator === '+' ){
+    if (operator === '+') {
         return a.add(b);
     }
-    if( operator === '-' ){
+    if (operator === '-') {
         return a.subtract(b);
     }
     throw new Error('Unknown operator');
-}
-
-/**
- *  find color type of an 'color_obj'.
- *  Returns string 'hsl'|'hsb'|'rgb'|'gray'.
- *  @private
- *  @method _getColorType
- *  @param {Object} color_obj color_obj `paper.Color` object or compatible raw object
- *  @return {String} `color type as string`
- *  @for _tweenPropHooks.Color
- */
-function _getColorType(color_obj) {
-    let color_type;
-    // if the color_obj is created with paper.Color it has an 'type' propertie.
+};
+exports._getColorType = function (color_obj) {
+    var color_type;
     if (color_obj.type) {
         color_type = color_obj.type;
-    // if color_obj is a 'raw' object we search for an propertie name
-    } else if (typeof (color_obj.red !== "undefined")) {
+    }
+    else if (typeof color_obj.red !== "undefined") {
         color_type = "rgb";
-    } else if (typeof (color_obj.lightness !== "undefined")) {
+    }
+    else if (typeof color_obj.lightness !== "undefined") {
         color_type = "hsl";
-    } else if (typeof (color_obj.brightness !== "undefined")) {
+    }
+    else if (typeof color_obj.brightness !== "undefined") {
         color_type = "hsb";
-    } else if (typeof (color_obj.gray !== "undefined")) {
-            color_type = "gray";
+    }
+    else if (typeof color_obj.gray !== "undefined") {
+        color_type = "gray";
     }
     return color_type;
-}
-
-/**
- *  find color type of an 'color_obj'.
- *  Returns string 'hsl'|'hsb'|'rgb'|'gray'.
- *  @private
- *  @method _getColorComponentNames
- *  @param {Object} color_obj color_obj `paper.Color` object or compatible raw object
- *  @return {Array} `color component labels`
- *  @for _tweenPropHooks.Color
- */
-function _getColorComponentNames(color_obj) {
-    let color_component_names;
+};
+exports._getColorComponentNames = function (color_obj) {
+    var color_component_names;
     if (color_obj._properties) {
         color_component_names = color_obj._properties;
-    } else {
-        const color_type = _getColorType(color_obj);
+    }
+    else {
+        var color_type = exports._getColorType(color_obj);
         switch (color_type) {
-            case "gray": {
-                color_component_names = [ "gray"];
-            } break;
-            case "rgb": {
-                color_component_names = [ "red", "green", "blue" ];
-            } break;
-            case "hsl": {
-                color_component_names = [ "hue", "saturation", "lightness" ];
-            } break;
-            case "hsb": {
-                color_component_names = [ "hue", "brightness", "saturation" ];
-            } break;
+            case "gray":
+                {
+                    color_component_names = ["gray"];
+                }
+                break;
+            case "rgb":
+                {
+                    color_component_names = ["red", "green", "blue"];
+                }
+                break;
+            case "hsl":
+                {
+                    color_component_names = ["hue", "saturation", "lightness"];
+                }
+                break;
+            case "hsb":
+                {
+                    color_component_names = ["hue", "brightness", "saturation"];
+                }
+                break;
             default:
-            // console.error("Color Type not supported.");
         }
     }
-    // TODO alpha handling
     return color_component_names;
-}
-
-
-// inspired by https://github.com/jquery/jquery/blob/10399ddcf8a239acc27bdec9231b996b178224d3/src/effects/Tween.js
-/**
- *  Helpers to get, set and ease properties that behave differently from "normal" properties. e.g. `scale`.
- *  @class _tweenPropHooks
- *  @private
- *  @static
- */
-var _tweenPropHooks = {
+};
+var __tweenPropHooks = {
     _default: {
-        get: function(tween) {
+        get: function (tween) {
             var output;
             if (tween.item[tween.prop] !== null) {
                 output = tween.item[tween.prop];
             }
-
             return output;
         },
-        set: function(tween) {
-
+        set: function (tween, percent) {
             var toSet = {};
-            toSet[tween.prop] = tween.now;
+            if (percent === 1) {
+                toSet[tween.prop] = tween.end;
+            }
+            else {
+                toSet[tween.prop] = tween.now;
+            }
             tween.item.set(toSet);
         }
     },
     scale: {
-        get: function(tween) {
+        get: function (tween) {
             if (!tween.item.data._animatePaperVals) {
                 tween.item.data._animatePaperVals = {};
             }
@@ -829,11 +581,9 @@ var _tweenPropHooks = {
             var output = tween.item.data._animatePaperVals.scale;
             return output;
         },
-        set: function(tween) {
-
+        set: function (tween, percent) {
             var curScaling = tween.item.data._animatePaperVals.scale;
             var trueScaling = tween.now / curScaling;
-
             tween.item.data._animatePaperVals.scale = tween.now;
             var center = false;
             if (typeof tween.A.settings.center !== "undefined") {
@@ -844,13 +594,14 @@ var _tweenPropHooks = {
             }
             if (center !== false) {
                 tween.item.scale(trueScaling, center);
-            } else {
+            }
+            else {
                 tween.item.scale(trueScaling);
             }
         }
     },
     rotate: {
-        get: function(tween) {
+        get: function (tween) {
             if (!tween.item.data._animatePaperVals) {
                 tween.item.data._animatePaperVals = {};
             }
@@ -860,12 +611,10 @@ var _tweenPropHooks = {
             var output = tween.item.data._animatePaperVals.rotate;
             return output;
         },
-        set: function(tween) {
+        set: function (tween) {
             var curRotate = tween.item.data._animatePaperVals.rotate;
             var trueRotate = tween.now - curRotate;
-
             tween.item.data._animatePaperVals.rotate = tween.now;
-
             var center = false;
             if (typeof tween.A.settings.center !== "undefined") {
                 center = tween.A.settings.center;
@@ -875,13 +624,14 @@ var _tweenPropHooks = {
             }
             if (center !== false) {
                 tween.item.rotate(trueRotate, center);
-            } else {
+            }
+            else {
                 tween.item.rotate(trueRotate);
             }
         }
     },
     translate: {
-        get: function(tween) {
+        get: function (tween) {
             if (!tween.item.data._animatePaperVals) {
                 tween.item.data._animatePaperVals = {};
             }
@@ -889,72 +639,84 @@ var _tweenPropHooks = {
                 tween.item.data._animatePaperVals.translate = new paper.Point(0, 0);
             }
             var output = tween.item.data._animatePaperVals.translate;
-
             return output;
         },
-        set: function(tween) {
+        set: function (tween) {
             var cur = tween.item.data._animatePaperVals.translate;
-            var actual = _pointDiff(tween.now, cur, "-");
-
-
+            var actual = exports.__pointDiff(tween.now, cur, "-");
             tween.item.data._animatePaperVals.translate = tween.now;
-
             tween.item.translate(actual);
         },
-        ease: function(tween, eased) {
-
-            var temp = _pointDiff(tween.end, tween.start, "-");
+        ease: function (tween, eased) {
+            var temp = exports.__pointDiff(tween.end, tween.start, "-");
             temp.x = temp.x * eased;
             temp.y = temp.y * eased;
-
-            tween.now = _pointDiff(temp, tween.start, "+");
-
+            tween.now = exports.__pointDiff(temp, tween.start, "+");
             return tween.now;
         }
     },
     position: {
-        get: function(tween) {
+        get: function (tween) {
             return {
                 x: tween.item.position.x,
                 y: tween.item.position.y
             };
         },
-        set: function(tween) {
-
-            tween.item.position.x += tween.now.x;
-            tween.item.position.y += tween.now.y;
-
+        set: function (tween, percent) {
+            if (percent === 1) {
+                var _a = exports._parseAbsoluteOrRelative(tween.end.x || 0), endX = _a.value, dirX = _a.direction;
+                var _b = exports._parseAbsoluteOrRelative(tween.end.y || 0), endY = _b.value, dirY = _b.direction;
+                if (typeof tween.end.x !== "undefined") {
+                    if (dirX === "+") {
+                        tween.item.position.x = tween.start.x + endX;
+                    }
+                    else if (dirX === "-") {
+                        tween.item.position.x = tween.start.x - endX;
+                    }
+                    else {
+                        tween.item.position.x = tween.end.x;
+                    }
+                }
+                if (typeof tween.end.y !== "undefined") {
+                    if (dirY === "+") {
+                        tween.item.position.y = tween.start.y + endY;
+                    }
+                    else if (dirY === "-") {
+                        tween.item.position.y = tween.start.y - endY;
+                    }
+                    else {
+                        tween.item.position.y = tween.end.y;
+                    }
+                }
+            }
+            else {
+                tween.item.position.x += tween.now.x;
+                tween.item.position.y += tween.now.y;
+            }
         },
-        ease: function(tween, eased) {
-            // used to store value progess
-            if(typeof tween._easePositionCache === "undefined") {
+        ease: function (tween, eased) {
+            if (typeof tween._easePositionCache === "undefined") {
                 tween._easePositionCache = {
                     x: 0,
                     y: 0
                 };
             }
-
-            // If the values are strings and start with + or -,
-            // the values are relative to the current pos
-            const {value:endX, direction:dirX} = _parseAbsoluteOrRelative(tween.end.x || 0);
-            const {value:endY, direction:dirY} = _parseAbsoluteOrRelative(tween.end.y || 0);
-
-            var _ease = function(val) {
+            var _a = exports._parseAbsoluteOrRelative(tween.end.x || 0), endX = _a.value, dirX = _a.direction;
+            var _b = exports._parseAbsoluteOrRelative(tween.end.y || 0), endY = _b.value, dirY = _b.direction;
+            var _ease = function (val) {
                 return ((val || 0) * eased);
             };
-
-            if(typeof tween.end.x !== "undefined") {
-                if(dirX==="+") {
+            if (typeof tween.end.x !== "undefined") {
+                if (dirX === "+") {
                     tween.now.x = (_ease(endX) - tween._easePositionCache.x);
                     tween._easePositionCache.x += tween.now.x;
                 }
-                else if(dirX==="-") {
+                else if (dirX === "-") {
                     tween.now.x = _ease(endX) - tween._easePositionCache.x;
                     tween._easePositionCache.x += tween.now.x;
-                    tween.now.x = - tween.now.x;
+                    tween.now.x = -tween.now.x;
                 }
                 else {
-                    // absolute, not relative
                     tween.now.x = ((endX - tween.start.x) * eased) - tween._easePositionCache.x;
                     tween._easePositionCache.x += tween.now.x;
                 }
@@ -962,19 +724,17 @@ var _tweenPropHooks = {
             else {
                 tween.now.x = 0;
             }
-            if(typeof tween.end.y !== "undefined") {
-                if(dirY==="+") {
+            if (typeof tween.end.y !== "undefined") {
+                if (dirY === "+") {
                     tween.now.y = _ease(endY) - tween._easePositionCache.y;
                     tween._easePositionCache.y += tween.now.y;
                 }
-                else if(dirY==="-") {
-
+                else if (dirY === "-") {
                     tween.now.y = _ease(endY) - tween._easePositionCache.y;
                     tween._easePositionCache.y += tween.now.y;
-                    tween.now.y = - tween.now.y;
+                    tween.now.y = -tween.now.y;
                 }
                 else {
-                    // absolute, not relative
                     tween.now.y = ((endY - tween.start.y) * eased) - tween._easePositionCache.y;
                     tween._easePositionCache.y += tween.now.y;
                 }
@@ -982,51 +742,71 @@ var _tweenPropHooks = {
             else {
                 tween.now.y = 0;
             }
-
             return tween.now;
         }
     },
     pointPosition: {
-        get: function(tween) {
+        get: function (tween) {
             return {
                 x: tween.item.x,
                 y: tween.item.y
             };
         },
-        set: function(tween) {
-            tween.item.x += tween.now.x;
-            tween.item.y += tween.now.y;
+        set: function (tween, percent) {
+            if (percent === 1) {
+                var _a = exports._parseAbsoluteOrRelative(tween.end.x || 0), endX = _a.value, dirX = _a.direction;
+                var _b = exports._parseAbsoluteOrRelative(tween.end.y || 0), endY = _b.value, dirY = _b.direction;
+                if (typeof tween.end.x !== "undefined") {
+                    if (dirX === "+") {
+                        tween.item.x = tween.start.x + endX;
+                    }
+                    else if (dirX === "-") {
+                        tween.item.x = tween.start.x - endX;
+                    }
+                    else {
+                        tween.item.x = tween.end.x;
+                    }
+                }
+                if (typeof tween.end.y !== "undefined") {
+                    if (dirY === "+") {
+                        tween.item.y = tween.start.y + endY;
+                    }
+                    else if (dirY === "-") {
+                        tween.item.y = tween.start.y - endY;
+                    }
+                    else {
+                        tween.item.y = tween.end.y;
+                    }
+                }
+            }
+            else {
+                tween.item.x += tween.now.x;
+                tween.item.y += tween.now.y;
+            }
         },
-        ease: function(tween, eased) {
-            // used to store value progess
-            if(typeof tween._easePositionCache === "undefined") {
+        ease: function (tween, eased) {
+            if (typeof tween._easePositionCache === "undefined") {
                 tween._easePositionCache = {
                     x: 0,
                     y: 0
                 };
             }
-
-            // If the values are strings and start with + or -,
-            // the values are relative to the current pos
-            const {value:endX, direction:dirX} = _parseAbsoluteOrRelative(tween.end.x || 0);
-            const {value:endY, direction:dirY} = _parseAbsoluteOrRelative(tween.end.y || 0);
-
-            var _ease = function(val) {
+            var _a = exports._parseAbsoluteOrRelative(tween.end.x || 0), endX = _a.value, dirX = _a.direction;
+            var _b = exports._parseAbsoluteOrRelative(tween.end.y || 0), endY = _b.value, dirY = _b.direction;
+            var _ease = function (val) {
                 return ((val || 0) * eased);
             };
-
-            if(typeof tween.end.x !== "undefined") {
-                if(dirX==="+") {
+            if (typeof tween.end.x !== "undefined") {
+                if (dirX === "+") {
                     tween.now.x = (_ease(endX) - tween._easePositionCache.x);
                     tween._easePositionCache.x += tween.now.x;
                 }
-                else if(dirX==="-") {
+                else if (dirX === "-") {
                     tween.now.x = _ease(endX) - tween._easePositionCache.x;
                     tween._easePositionCache.x += tween.now.x;
-                    tween.now.x = - tween.now.x;
+                    tween.now.x = -tween.now.x;
                 }
                 else {
-                    // absolute, not relative
                     tween.now.x = ((endX - tween.start.x) * eased) - tween._easePositionCache.x;
                     tween._easePositionCache.x += tween.now.x;
                 }
@@ -1034,19 +814,17 @@ var _tweenPropHooks = {
             else {
                 tween.now.x = 0;
             }
-            if(typeof tween.end.y !== "undefined") {
-                if(dirY==="+") {
+            if (typeof tween.end.y !== "undefined") {
+                if (dirY === "+") {
                     tween.now.y = _ease(endY) - tween._easePositionCache.y;
                     tween._easePositionCache.y += tween.now.y;
                 }
-                else if(dirY==="-") {
-
+                else if (dirY === "-") {
                     tween.now.y = _ease(endY) - tween._easePositionCache.y;
                     tween._easePositionCache.y += tween.now.y;
-                    tween.now.y = - tween.now.y;
+                    tween.now.y = -tween.now.y;
                 }
                 else {
-                    // absolute, not relative
                     tween.now.y = ((endY - tween.start.y) * eased) - tween._easePositionCache.y;
                     tween._easePositionCache.y += tween.now.y;
                 }
@@ -1054,101 +832,116 @@ var _tweenPropHooks = {
             else {
                 tween.now.y = 0;
             }
-
             return tween.now;
         }
     },
     Color: {
-            get: function(tween) {
-                // 'should' work but does not:
-                // return tween.item[tween.prop];
-                // this creates a unlinked copy of only the color component values.
-                // this seems to be nessesecary to avoid a bug/problem in
-                // paper.js Color class in combinaiton with Groups
-                const current_color = tween.item[tween.prop];
-                const component_names = _getColorComponentNames(current_color);
-                const result = {};
-                for (const component_name of component_names) {
-                    result[component_name] = current_color[component_name];
-                }
-                // console.log("result", result);
-                return result;
-            },
-            set: function(tween) {
-                // this creates a unlinked copy of only the color component values first.
-                // this seems to be nessesecary to avoid a bug in
-                // paper.js Color class in combinaiton with Groups and setting single properties
-                const component_names = _getColorComponentNames(tween.item[tween.prop]);
-
-                const current_color = tween.item[tween.prop];
-                const color_new = {};
-
-                // console.log("tween.now", tween.now);
-                for (const component_name of component_names) {
-                    color_new[component_name] = (
-                        current_color[component_name] +
-                        tween.now[component_name]
-                    );
-                }
-                // console.log("color_new", color_new);
-                tween.item[tween.prop] = color_new;
-            },
-            ease: function(tween, eased) {
-                // const color_type = _getColorType(tween.End);
-                const component_names = _getColorComponentNames(tween.item[tween.prop]);
-                // const props = _getColorComponentNames(tween.item[tween.prop]);
-
-                var _ease = function(val) {
-                    return (val || 0) * eased;
-                };
-                for (const component_name of component_names) {
-                    var curProp = component_name;
-                    if (typeof tween._easeColorCache === "undefined") {
-                        tween._easeColorCache = {};
-                    }
-                    if (typeof tween._easeColorCache[curProp] === "undefined") {
-                        tween._easeColorCache[curProp] = 0;
-                    }
-
-                    // If the values are strings and start with + or -,
-                    // the values are relative to the current pos
-                    const {value:end, direction:dir} = _parseAbsoluteOrRelative(tween.end[curProp] || 0);
-
-                    if (typeof tween.end[curProp] !== "undefined") {
+        get: function (tween) {
+            var current_color = tween.item[tween.prop];
+            var component_names = exports._getColorComponentNames(current_color);
+            var result = {};
+            for (var _i = 0, component_names_1 = component_names; _i < component_names_1.length; _i++) {
+                var component_name = component_names_1[_i];
+                result[component_name] = current_color[component_name];
+            }
+            return result;
+        },
+        set: function (tween, percent) {
+            var component_names = exports._getColorComponentNames(tween.item[tween.prop]);
+            var current_color = tween.item[tween.prop];
+            var color_new = {};
+            for (var _i = 0, component_names_2 = component_names; _i < component_names_2.length; _i++) {
+                var component_name = component_names_2[_i];
+                if (percent === 1) {
+                    var _a = exports._parseAbsoluteOrRelative(tween.end[component_name] || 0), end = _a.value, dir = _a.direction;
+                    if (typeof tween.end[component_name] !== "undefined") {
                         if (dir === "+") {
-                            tween.now[curProp] = _ease(end) - tween._easeColorCache[curProp];
-                            tween._easeColorCache[curProp] += tween.now[curProp];
-                        } else if (dir === "-") {
-                            tween.now[curProp] = _ease(end) - tween._easeColorCache[curProp];
-                            tween._easeColorCache[curProp] += tween.now[curProp];
-                            tween.now[curProp] = -tween.now[curProp];
-                        } else {
-                            tween.now[curProp] = (end - tween.start[curProp]) * eased - tween._easeColorCache[curProp];
-                            tween._easeColorCache[curProp] += tween.now[curProp];
+                            tween.now[component_name] = tween.start[component_name] + end;
+                            tween._easeColorCache[component_name] = tween.start[component_name] + end;
                         }
-                    } else {
-                        tween.now[curProp] = 0;
+                        else if (dir === "-") {
+                            tween.now[component_name] = tween.start[component_name] - end;
+                            tween._easeColorCache[component_name] = tween.start[component_name] - end;
+                        }
+                        else {
+                            tween.now[component_name] = tween.end[component_name];
+                            tween._easeColorCache[component_name] = tween.end[component_name];
+                        }
+                    }
+                    else {
+                        tween.now[component_name] = tween.start[component_name];
+                    }
+                    color_new[component_name] = tween.now[component_name];
+                }
+                else {
+                    color_new[component_name] = current_color[component_name] + tween.now[component_name];
+                }
+            }
+            tween.item[tween.prop] = color_new;
+        },
+        ease: function (tween, eased) {
+            var component_names = exports._getColorComponentNames(tween.item[tween.prop]);
+            var _ease = function (val) {
+                return (val || 0) * eased;
+            };
+            for (var _i = 0, component_names_3 = component_names; _i < component_names_3.length; _i++) {
+                var component_name = component_names_3[_i];
+                var curProp = component_name;
+                if (typeof tween._easeColorCache === "undefined") {
+                    tween._easeColorCache = {};
+                }
+                if (typeof tween._easeColorCache[curProp] === "undefined") {
+                    tween._easeColorCache[curProp] = 0;
+                }
+                var _a = exports._parseAbsoluteOrRelative(tween.end[curProp] || 0), end = _a.value, dir = _a.direction;
+                if (typeof tween.end[curProp] !== "undefined") {
+                    if (dir === "+") {
+                        tween.now[curProp] = _ease(end) - tween._easeColorCache[curProp];
+                        tween._easeColorCache[curProp] += tween.now[curProp];
+                    }
+                    else if (dir === "-") {
+                        tween.now[curProp] = _ease(end) - tween._easeColorCache[curProp];
+                        tween._easeColorCache[curProp] += tween.now[curProp];
+                        tween.now[curProp] = -tween.now[curProp];
+                    }
+                    else {
+                        tween.now[curProp] = (end - tween.start[curProp]) * eased - tween._easeColorCache[curProp];
+                        tween._easeColorCache[curProp] += tween.now[curProp];
                     }
                 }
-                return tween.now;
+                else {
+                    tween.now[curProp] = 0;
+                }
             }
-        }
-};
-var _colorProperties = [ "fill", "stroke" ];
-for (var i = 0, l = _colorProperties.length; i < l; i++) {
-    _tweenPropHooks[_colorProperties[i] + "Color"] = _tweenPropHooks.Color;
-}
-module.exports = {
-    _tweenPropHooks: _tweenPropHooks,
-    _pointDiff: _pointDiff,
-    extendPropHooks: function(customHooks) {
-        for (var i in customHooks) {
-            if (customHooks.hasOwnProperty(i)) {
-                _tweenPropHooks[i] = customHooks[i];
-            }
+            return tween.now;
         }
     }
 };
+var _colorProperties = ["fill", "stroke"];
+for (var i = 0, l = _colorProperties.length; i < l; i++) {
+    __tweenPropHooks[_colorProperties[i] + "Color"] = __tweenPropHooks.Color;
+}
+exports._tweenPropHooks = __tweenPropHooks;
+exports._pointDiff = exports.__pointDiff;
+exports.extendPropHooks = function (customHooks) {
+    for (var i in customHooks) {
+        if (customHooks.hasOwnProperty(i)) {
+            __tweenPropHooks[i] = customHooks[i];
+        }
+    }
+};
+if (true) {
+    module.exports = {
+        _tweenPropHooks: __tweenPropHooks,
+        __pointDiff: exports.__pointDiff,
+        extendPropHooks: exports.extendPropHooks,
+        _parseAbsoluteOrRelative: exports._parseAbsoluteOrRelative,
+        _getColorType: exports._getColorType,
+        _getColorComponentNames: exports._getColorComponentNames
+    };
+}
+
+//# sourceMappingURL=prophooks.js.map
 
 
 /***/ }),
@@ -1156,367 +949,279 @@ module.exports = {
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Animation = __webpack_require__(3);
-var _animate = function(item, animation) {
+"use strict";
+
+exports.__esModule = true;
+var animation_1 = __webpack_require__(3);
+var _animate = function (item, animation) {
     var animations = [];
     var output;
-
     if (animation instanceof Array) {
         animations = animation;
-    } else {
+    }
+    else {
         animations.push(animation);
     }
-    var index = 0; // current index in the animations
-    new Animation(item, animations[index].properties, animations[index].settings, function _continue() {
+    var index = 0;
+    new animation_1.Animation(item, animations[index].properties, animations[index].settings, function _continue() {
         index++;
         if (typeof animations[index] !== "undefined") {
-            new Animation(item, animations[index].properties, animations[index].settings, _continue);
+            new animation_1.Animation(item, animations[index].properties, animations[index].settings, _continue);
         }
     });
     return item;
 };
-/**
- * Effects : A facade for easy to use animations.
- * 
- * @class fx
- * @static
- */
-module.exports = {
-    /**
-     * Grow a path
-     *
-     * @method grow
-     * @deprecated
-     * @param {Object} path a paper.js `Path` object
-     */
-    grow: function(path, settings) {
-        console.log("segmentGrow was buggy and has been removed, sorry :/");
-        return path;
-    },
-    /**
-     * Shake an item
-     *
-     * @method shake
-     * @param {Object} item a paper.js `Item` object
-     * @param {Object} settings
-     * @param {Number} settings.nb Number of shakes. Default : 2
-     * @param {Number} settings.movement Length of each shake? Default : 40
-     * @param {Function} settings.complete complete callback
-     */
-    shake: function(item, settings) {
-            var nbOfShakes = Math.floor(settings ? settings.nb || 2 : 2) * 2;
-            var length = Math.floor(settings ? settings.movement || 40 : 40);
-            var animations = [];
-            for (var first = true; nbOfShakes > 0; nbOfShakes--) {
-                var direction = nbOfShakes % 2 ? "+" : "-";
-                var movement = length;
-                var callback = null;
-                if (nbOfShakes === 1 && !!settings && typeof settings.complete !== "undefined") {
-                    callback = settings.complete;
-                }
-                if (first || nbOfShakes === 1) {
-                    movement = movement / 2;
-                    first = false;
-                }
-                animations.push({
-                    properties: {
-                        position: {
-                            x: direction + movement
-                        }
-                    },
-                    settings: {
-                        duration: 100,
-                        easing: "swing",
-                        complete: callback
-                    }
-                });
-            }
-            _animate(item, animations);
-        },
-    /**
-     * Increase the opacity to 1
-     *
-     * @method fadeIn
-     * @param {Object} item a paper.js `Item` object
-     * @param {Object} settings
-     * @param {Number} settings.duration Duration of the animation. Default : 500
-     * @param {String} settings.easing Name of the easing function. Default : swing
-     * @param {Function} settings.complete complete callback
-     */
-    fadeIn: function(item, settings) {
-        var duration = 500;
-        var complete = undefined;
-        var easing = "swing";
-        if(typeof settings !== "undefined") {
-            if(typeof settings.duration !== "undefined") duration = Number(settings.duration);
-            if(typeof settings.complete === "function") complete = settings.complete;
-            if(typeof settings.easing !== "undefined") easing = settings.easing;
-        }
-        _animate(item,{
-            properties: {
-                opacity: 1
-            },
-            settings: {
-                duration: duration,
-                easing: easing,
-                complete: complete
-            }
-        });
-    },
-    /**
-     * Decrease the opacity to 0
-     *
-     * @method fadeOut
-     * @param {Object} item a paper.js `Item` object
-     * @param {Object} settings
-     * @param {Number} settings.duration Duration of the animation. Default : 500
-     * @param {String} settings.easing Name of the easing function. Default : swing
-     * @param {Function} settings.complete complete callback
-     */
-    fadeOut: function(item, settings) {
-        var duration = 500;
-        var complete = undefined;
-        var easing = "swing";
-        if(typeof settings !== "undefined") {
-            if(typeof settings.duration !== "undefined") duration = Number(settings.duration);
-            if(typeof settings.complete === "function") complete = settings.complete;
-            if(typeof settings.easing !== "undefined") easing = settings.easing;
-        }
-        _animate(item,{
-            properties: {
-                opacity: 0
-            },
-            settings: {
-                duration: duration,
-                easing: easing,
-                complete: complete
-            }
-        });
-    },
-    /**
-     * Increase the opacity to 1 and go upward
-     *
-     * @method slideUp
-     * @param {Object} item a paper.js `Item` object
-     * @param {Object} settings
-     * @param {Number} settings.duration Duration of the animation. Default : 500
-     * @param {String} settings.easing Name of the easing function. Default : swing
-     * @param {Number} setting.distance Distance to move upward. Default : 50
-     * @param {Function} settings.complete complete callback
-     */
-    slideUp: function(item, settings) {
-        var duration = 500;
-        var complete = undefined;
-        var distance = 50;
-        var easing = "swing";
-        if(typeof settings !== "undefined") {
-            if(typeof settings.duration !== "undefined") duration = Number(settings.duration);
-            if(typeof settings.complete === "function") complete = settings.complete;
-            if(typeof settings.easing !== "undefined") easing = settings.easing;
-            if(typeof settings.distance !== "undefined") distance = settings.distance;
-        }
-        _animate(item,{
-            properties: {
-                opacity: 1,
-                position: {
-                    y: "-"+distance
-                }
-            },
-            settings: {
-                duration: duration,
-                easing: easing,
-                complete: complete
-            }
-        });
-    },
-    /**
-     * Decrease the opacity to 0 and go downward
-     *
-     * @method slideDown
-     * @param {Object} item a paper.js `Item` object
-     * @param {Object} settings
-     * @param {Number} settings.duration Duration of the animation. Default : 500
-     * @param {String} settings.easing Name of the easing function. Default : swing
-     * @param {Number} setting.distance Distance to move downward. Default : 50
-     * @param {Function} settings.complete complete callback
-     */
-    slideDown: function(item, settings) {
-        var duration = 500;
-        var complete = undefined;
-        var distance = 50;
-        var easing = "swing";
-        if(typeof settings !== "undefined") {
-            if(typeof settings.duration !== "undefined") duration = Number(settings.duration);
-            if(typeof settings.complete === "function") complete = settings.complete;
-            if(typeof settings.easing !== "undefined") easing = settings.easing;
-            if(typeof settings.distance !== "undefined") distance = settings.distance;
-        }
-        _animate(item,{
-            properties: {
-                opacity: 0,
-                position: {
-                    y: "+"+distance
-                }
-            },
-            settings: {
-                duration: duration,
-                easing: easing,
-                complete: complete
-            }
-        });
-    },
-    /**
-     * Increase the opacity to 1, rotates 360deg and scales by 3.
-     *
-     * @method splash
-     * @param {Object} item a paper.js `Item` object
-     * @param {Object} settings
-     * @param {Number} settings.duration Duration of the animation. Default : 500
-     * @param {String} settings.easing Name of the easing function. Default : swing
-     * @param {Function} settings.complete complete callback
-     */
-    splash: function(item, settings) {
-        var duration = 500;
-        var complete = undefined;
-        var easing = "swing";
-        if(typeof settings !== "undefined") {
-            if(typeof settings.duration !== "undefined") duration = Number(settings.duration);
-            if(typeof settings.complete === "function") complete = settings.complete;
-            if(typeof settings.easing !== "undefined") easing = settings.easing;
-        }
-        _animate(item,{
-            properties: {
-                opacity: 1,
-                scale: 3,
-                rotate: 360
-            },
-            settings: {
-                duration: duration,
-                easing: easing,
-                complete: complete
-            }
-        });
-    },
+exports.grow = function (path, settings) {
+    console.log("segmentGrow was buggy and has been removed, sorry :/");
+    return path;
 };
+exports.shake = function (item, settings) {
+    var nbOfShakes = Math.floor(settings ? settings.nb || 2 : 2) * 2;
+    var length = Math.floor(settings ? settings.movement || 40 : 40);
+    var animations = [];
+    for (var first = true; nbOfShakes > 0; nbOfShakes--) {
+        var direction = nbOfShakes % 2 ? "+" : "-";
+        var movement = length;
+        var callback = null;
+        if (nbOfShakes === 1 && !!settings && typeof settings.complete !== "undefined") {
+            callback = settings.complete;
+        }
+        if (first || nbOfShakes === 1) {
+            movement = movement / 2;
+            first = false;
+        }
+        animations.push({
+            properties: {
+                position: {
+                    x: direction + movement
+                }
+            },
+            settings: {
+                duration: 100,
+                easing: "swing",
+                complete: callback
+            }
+        });
+    }
+    _animate(item, animations);
+};
+exports.fadeIn = function (item, settings) {
+    var duration = 500;
+    var complete = undefined;
+    var easing = "swing";
+    if (typeof settings !== "undefined") {
+        if (typeof settings.duration !== "undefined")
+            duration = Number(settings.duration);
+        if (typeof settings.complete === "function")
+            complete = settings.complete;
+        if (typeof settings.easing !== "undefined")
+            easing = settings.easing;
+    }
+    _animate(item, {
+        properties: {
+            opacity: 1
+        },
+        settings: {
+            duration: duration,
+            easing: easing,
+            complete: complete
+        }
+    });
+};
+exports.fadeOut = function (item, settings) {
+    var duration = 500;
+    var complete = undefined;
+    var easing = "swing";
+    if (typeof settings !== "undefined") {
+        if (typeof settings.duration !== "undefined")
+            duration = Number(settings.duration);
+        if (typeof settings.complete === "function")
+            complete = settings.complete;
+        if (typeof settings.easing !== "undefined")
+            easing = settings.easing;
+    }
+    _animate(item, {
+        properties: {
+            opacity: 0
+        },
+        settings: {
+            duration: duration,
+            easing: easing,
+            complete: complete
+        }
+    });
+};
+exports.slideUp = function (item, settings) {
+    var duration = 500;
+    var complete = undefined;
+    var distance = 50;
+    var easing = "swing";
+    if (typeof settings !== "undefined") {
+        if (typeof settings.duration !== "undefined")
+            duration = Number(settings.duration);
+        if (typeof settings.complete === "function")
+            complete = settings.complete;
+        if (typeof settings.easing !== "undefined")
+            easing = settings.easing;
+        if (typeof settings.distance !== "undefined")
+            distance = settings.distance;
+    }
+    _animate(item, {
+        properties: {
+            opacity: 1,
+            position: {
+                y: "-" + distance
+            }
+        },
+        settings: {
+            duration: duration,
+            easing: easing,
+            complete: complete
+        }
+    });
+};
+exports.slideDown = function (item, settings) {
+    var duration = 500;
+    var complete = undefined;
+    var distance = 50;
+    var easing = "swing";
+    if (typeof settings !== "undefined") {
+        if (typeof settings.duration !== "undefined")
+            duration = Number(settings.duration);
+        if (typeof settings.complete === "function")
+            complete = settings.complete;
+        if (typeof settings.easing !== "undefined")
+            easing = settings.easing;
+        if (typeof settings.distance !== "undefined")
+            distance = settings.distance;
+    }
+    _animate(item, {
+        properties: {
+            opacity: 0,
+            position: {
+                y: "+" + distance
+            }
+        },
+        settings: {
+            duration: duration,
+            easing: easing,
+            complete: complete
+        }
+    });
+};
+exports.splash = function (item, settings) {
+    var duration = 500;
+    var complete = undefined;
+    var easing = "swing";
+    if (typeof settings !== "undefined") {
+        if (typeof settings.duration !== "undefined")
+            duration = Number(settings.duration);
+        if (typeof settings.complete === "function")
+            complete = settings.complete;
+        if (typeof settings.easing !== "undefined")
+            easing = settings.easing;
+    }
+    _animate(item, {
+        properties: {
+            opacity: 1,
+            scale: 3,
+            rotate: 360
+        },
+        settings: {
+            duration: duration,
+            easing: easing,
+            complete: complete
+        }
+    });
+};
+if (true) {
+    module.exports = {
+        grow: function (path, settings) {
+            console.log("segmentGrow was buggy and has been removed, sorry :/");
+            return path;
+        },
+        shake: exports.shake,
+        fadeIn: exports.fadeIn,
+        fadeOut: exports.fadeOut,
+        slideUp: exports.slideUp,
+        slideDown: exports.slideDown,
+        splash: exports.splash
+    };
+}
+
+//# sourceMappingURL=effects.js.map
+
 
 /***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _tweenPropHooks = __webpack_require__(6)._tweenPropHooks;
-var easing = __webpack_require__(0);
-/**
- *  Tween class. TODO : figure out a way to add support for extra arguments to pass to the Tweens (like for rotate() )
- *  
- *  @class Tween
- *  @constructor
- *  @param {String} Property name
- *  @param {mixed} Final value
- *  @param {Object} animation
- */
-function Tween(property, value, animation) {
+"use strict";
+
+exports.__esModule = true;
+var prophooks_1 = __webpack_require__(6);
+var easing_1 = __webpack_require__(0);
+var Tween = (function () {
+    function Tween(property, value, animation) {
         var self = this;
-        
-        /**
-         *  Reference to the {{#crossLink "Animation"}}{{/crossLink}}
-         *  @property {Object} A
-         *  @readonly
-         */
         self.A = animation;
-        /**
-         *  Animated `paper.Item` object
-         *  @property {Object} item
-         *  @readonly
-         */
         self.item = animation.item;
-        /**
-         *  Name of the animated property
-         *  @property {String} prop
-         *  @readonly
-         */
         self.prop = property;
-        /**
-         *  The value the property will have when the animation is over.
-         *  @property {mixed} end
-         *  @readonly
-         */
         self.end = value;
-        /**
-         *  Value of the property when the animation starts. Set using {{#crossLink "Tween/cur:method"}}{{/crossLink}}
-         *  @property {mixed} start
-         *  @readonly
-         */
         self.start = self.cur();
         if (typeof self.end === "string" && self.end.charAt(0) === "+") {
             self.end = self.start + parseFloat(self.end);
-        } else if (typeof self.end === "string" && self.end.charAt(0) === "-") {
+        }
+        else if (typeof self.end === "string" && self.end.charAt(0) === "-") {
             self.end = self.start + parseFloat(self.end);
         }
-        /**
-         *  Current value of the property. Set using {{#crossLink "Tween/cur:method"}}{{/crossLink}}
-         *  @property {mixed} now
-         */
         self.now = self.cur();
-        /**
-         *  If the value of the property increases, `direction` will be `'+'`, if it decreases : `'-'`.
-         *  @property {String} direction
-         *  @readonly
-         */
-        self.direction = self.end > self.start ? "+" : "-";  
-        
-
+        self.direction = self.end > self.start ? "+" : "-";
     }
-    /**
-     *  Get the current value of the animated property. Uses {{#crossLink "_tweenPropHooks"}}{{/crossLink}} if
-     *  available.
-     *  @method cur
-     *  @return {mixed} Current value
-     */
-Tween.prototype.cur = function() {
-    var self = this;
-    
-    // should we use a special way to get the current value ? if not just use item[prop]
-    var hooks = _tweenPropHooks[self.prop];
+    Tween.prototype.cur = function () {
+        var self = this;
+        var hooks = prophooks_1._tweenPropHooks[self.prop];
+        return hooks && hooks.get ? hooks.get(self) : prophooks_1._tweenPropHooks._default.get(self);
+    };
+    Tween.prototype.run = function (percent) {
+        var self = this;
+        var eased;
+        var hooks = prophooks_1._tweenPropHooks[self.prop];
+        var settings = self.A.settings;
+        if (settings.duration) {
+            var easingFunc = void 0;
+            if (typeof settings.easing === "function") {
+                easingFunc = settings.easing;
+            }
+            else {
+                easingFunc = easing_1.easing[settings.easing];
+            }
+            self.pos = eased = easingFunc(percent, settings.duration * percent, 0, 1, self.duration);
+        }
+        else {
+            self.pos = eased = percent;
+        }
+        if (hooks && hooks.ease) {
+            hooks.ease(self, eased);
+        }
+        else {
+            self.now = (self.end - self.start) * eased + self.start;
+        }
+        if (hooks && hooks.set) {
+            hooks.set(self, percent);
+        }
+        else {
+            prophooks_1._tweenPropHooks._default.set(self, percent);
+        }
+        return self;
+    };
+    return Tween;
+}());
+exports.Tween = Tween;
+;
 
-    return hooks && hooks.get ? hooks.get(self) : _tweenPropHooks._default.get(self);
-};
-/**
- *  Called on each {{#crossLink "Animation/tick:method"}}{{/crossLink}}. Set the value of the property
- *  to the eased value. Uses {{#crossLink "_tweenPropHooks"}}{{/crossLink}} if available.
- *  It takes the percentage of the animation duration as argument.
- *  @method run
- *  @param {Number} percent 
- *  @return {Object} self
- *  @chainable
- */
-Tween.prototype.run = function(percent) {
-    var self = this;
-    var eased;
-    var hooks = _tweenPropHooks[self.prop];
+//# sourceMappingURL=tween.js.map
 
-    var settings = self.A.settings;
-    if (settings.duration) {
-        self.pos = eased = easing[settings.easing](percent, settings.duration * percent, 0, 1, self.duration);
-    } else {
-        self.pos = eased = percent;
-    }
-    // refresh current value
-    if (hooks && hooks.ease) {
-        hooks.ease(self, eased);
-    } else {
-        self.now = (self.end - self.start) * eased + self.start;
-    }
-
-    if (hooks && hooks.set) {
-        hooks.set(self);
-    } else {
-        _tweenPropHooks._default.set(self);
-    }
-
-    return self;
-};
-
-module.exports = Tween;
 
 /***/ }),
 /* 10 */,
